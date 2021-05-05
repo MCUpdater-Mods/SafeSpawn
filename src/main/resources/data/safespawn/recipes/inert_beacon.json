@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "safespawn",
+  "pattern": [
+    "ggg",
+    "glg",
+    "ooo"
+  ],
+  "key": {
+    "g": {
+      "item": "minecraft:glass"
+    },
+    "l": {
+      "item": "minecraft:lantern"
+    },
+    "o": {
+      "item": "minecraft:obsidian"
+    }
+  },
+  "result": {
+    "item": "safespawn:inert_beacon"
+  }
+}

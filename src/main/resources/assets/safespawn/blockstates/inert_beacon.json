@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "safespawn:block/inert_beacon"
+    }
+  }
+}

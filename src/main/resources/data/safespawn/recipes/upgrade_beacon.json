@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "safespawn:inert_beacon"},
+    { "item": "minecraft:nether_star"}
+  ],
+  "result": {
+    "item": "minecraft:beacon",
+    "count": 1
+  }
+}
