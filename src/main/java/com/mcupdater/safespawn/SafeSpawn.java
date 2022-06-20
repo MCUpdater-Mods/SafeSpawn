@@ -5,18 +5,16 @@ import com.mcupdater.safespawn.setup.Config;
 import com.mcupdater.safespawn.setup.ModSetup;
 import com.mcupdater.safespawn.setup.Registration;
 import com.mcupdater.safespawn.world.SpawnFortFeature;
-import net.minecraft.block.Block;
-import net.minecraft.entity.player.SpawnLocationHelper;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.biome.provider.BiomeProvider;
-import net.minecraft.world.gen.ChunkGenerator;
-import net.minecraft.world.gen.feature.ConfiguredFeature;
-import net.minecraft.world.gen.feature.Features;
-import net.minecraft.world.gen.feature.NoFeatureConfig;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraft.world.storage.IServerWorldInfo;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.PlayerRespawnLogic;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
+import net.minecraft.world.level.storage.ServerLevelData;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -50,39 +48,40 @@ public class SafeSpawn
 		@SubscribeEvent
 		public void onSpawnGenerate(WorldEvent.CreateSpawnPosition worldEvent) {
 			LOGGER.info("Event fired!");
-			if (worldEvent.getWorld() instanceof ServerWorld) {
-				ServerWorld world = (ServerWorld) worldEvent.getWorld();
-				IServerWorldInfo worldInfo = worldEvent.getSettings();
+			if (worldEvent.getWorld() instanceof ServerLevel) {
+				ServerLevel world = (ServerLevel) worldEvent.getWorld();
+				ServerLevelData worldInfo = worldEvent.getSettings();
 				ChunkGenerator chunkgenerator = world.getChunkSource().getGenerator();
-				BiomeProvider biomeprovider = chunkgenerator.getBiomeSource();
+				BiomeSource biomeprovider = chunkgenerator.getBiomeSource();
 				Random random = new Random(world.getSeed());
-				BlockPos blockpos = biomeprovider.findBiomeHorizontal(0, world.getSeaLevel(), 0, 256, (biome) -> {
-					return biome.getMobSettings().playerSpawnFriendly();
-				}, random);
-				ChunkPos chunkpos = blockpos == null ? new ChunkPos(0, 0) : new ChunkPos(blockpos);
-				if (blockpos == null) {
-					LOGGER.warn("Unable to find spawn biome");
+				//BlockPos blockpos = biomeprovider.findBiomeHorizontal(0, world.getSeaLevel(), 0, 256, (biome) -> biome.getMobSettings().playerSpawnFriendly(), random);
+				//ChunkPos chunkpos = blockpos == null ? new ChunkPos(0, 0) : new ChunkPos(blockpos);
+				ChunkPos chunkpos = new ChunkPos(chunkgenerator.climateSampler().findSpawnPosition());
+				int spawnHeight = chunkgenerator.getSpawnHeight(world);
+				if (spawnHeight < world.getMinBuildHeight()) {
+					BlockPos blockpos = chunkpos.getWorldPosition();
+					spawnHeight = world.getHeight(Heightmap.Types.WORLD_SURFACE, blockpos.getX() + 8, blockpos.getZ() + 8);
 				}
 
-				boolean flag = false;
-
+				/*
 				for(Block block : BlockTags.VALID_SPAWN.getValues()) {
 					if (biomeprovider.getSurfaceBlocks().contains(block.defaultBlockState())) {
 						flag = true;
 						break;
 					}
 				}
+				*/
 
-				worldInfo.setSpawn(chunkpos.getWorldPosition().offset(8, chunkgenerator.getSpawnHeight(), 8), 0.0F);
+				worldInfo.setSpawn(chunkpos.getWorldPosition().offset(8, spawnHeight, 8), 0.0F);
 				int xOffset = 0;
 				int zOffset = 0;
 				int i = 0;
 				int j = -1;
 
 				BlockPos blockpos1 = null;
-				for(int l = 0; l < 1024; ++l) {
-					if (xOffset > -16 && xOffset <= 16 && zOffset > -16 && zOffset <= 16) {
-						blockpos1 = SpawnLocationHelper.getSpawnPosInChunk(world, new ChunkPos(chunkpos.x + xOffset, chunkpos.z + zOffset), flag);
+				for(int l = 0; l < Mth.square(11); ++l) {
+					if (xOffset > -5 && xOffset <= 5 && zOffset > -5 && zOffset <= 5) {
+						blockpos1 = PlayerRespawnLogic.getSpawnPosInChunk(world, new ChunkPos(chunkpos.x + xOffset, chunkpos.z + zOffset));
 						if (blockpos1 != null) {
 							worldInfo.setSpawn(blockpos1, 0.0F);
 							break;
@@ -99,7 +98,7 @@ public class SafeSpawn
 					zOffset += j;
 				}
 
-				new SpawnFortFeature(NoFeatureConfig.CODEC).place(world, chunkgenerator, world.getRandom(), new BlockPos(worldInfo.getXSpawn(), worldInfo.getYSpawn()-1, worldInfo.getZSpawn()), NoFeatureConfig.INSTANCE);
+				new SpawnFortFeature(NoneFeatureConfiguration.CODEC).place(NoneFeatureConfiguration.INSTANCE, world, chunkgenerator, world.getRandom(), new BlockPos(worldInfo.getXSpawn(), worldInfo.getYSpawn()-1, worldInfo.getZSpawn()));
 				worldInfo.setSpawn(blockpos1.above(3),0.0F);
 			} else {
 				LOGGER.info("Not a ServerWorld");

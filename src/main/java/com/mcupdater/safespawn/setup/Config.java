@@ -3,15 +3,17 @@ package com.mcupdater.safespawn.setup;
 import com.mcupdater.safespawn.SafeSpawn;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.command.arguments.BlockStateParser;
-import net.minecraft.command.arguments.PotionArgument;
-import net.minecraft.potion.Effect;
-import net.minecraft.potion.EffectInstance;
+import net.minecraft.commands.arguments.MobEffectArgument;
+import net.minecraft.commands.arguments.blocks.BlockStateParser;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.ForgeConfigSpec;
 
-import static com.mcupdater.safespawn.setup.Registration.BEACONBLOCK;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 
 public class Config {
     public static ForgeConfigSpec COMMON_CONFIG;
@@ -26,6 +28,9 @@ public class Config {
     private static ForgeConfigSpec.ConfigValue<String> PRIMARY_CARPET;
     private static ForgeConfigSpec.ConfigValue<String> SECONDARY_CARPET;
     private static ForgeConfigSpec.ConfigValue<String> DAIS_FOCAL;
+    private static ForgeConfigSpec.ConfigValue<String> DAIS_FOCAL2;
+    public static ForgeConfigSpec.BooleanValue FARM_PLOTS;
+    private static ForgeConfigSpec.ConfigValue<List<? extends String>> VALID_CROPS;
 
     public static ForgeConfigSpec.BooleanValue EFFECT_PLAYER_ENABLED;
     public static ForgeConfigSpec.IntValue EFFECT_PLAYER_RANGE;
@@ -72,6 +77,9 @@ public class Config {
             PRIMARY_CARPET = COMMON_BUILDER.comment("Center carpet").translation("safespawn.config.primary_carpet").define("PrimaryCarpet","minecraft:purple_carpet");
             SECONDARY_CARPET = COMMON_BUILDER.comment("Edge carpet").translation("safespawn.config.secondary_carpet").define("SecondaryCarpet", "minecraft:black_carpet");
             DAIS_FOCAL = COMMON_BUILDER.comment("Block on top of dais").translation("safespawn.config.dais_focal").define("DaisFocal", "safespawn:inert_beacon");
+            DAIS_FOCAL2 = COMMON_BUILDER.comment("Block on top of dais Y+1").translation("safespawn.config.dais_focal").define("DaisFocal2", "minecraft:air");
+            FARM_PLOTS = COMMON_BUILDER.comment("Generate farm plots").translation("safespawn.config.farm_plots").define("FarmPlots", true);
+            VALID_CROPS = COMMON_BUILDER.comment("List of valid crops for farm plots").translation("safespawn.config.valid_crops").defineList("ValidCrops", Arrays.asList("minecraft:wheat","minecraft:carrots","minecraft:potatoes","minecraft:beetroots","minecraft:melon_stem","minecraft:pumpkin_stem"), (x) -> true);
         }
         COMMON_BUILDER.pop();
         COMMON_BUILDER.comment("Effects").push(CATEGORY_EFFECTS);
@@ -130,45 +138,47 @@ public class Config {
         COMMON_CONFIG = COMMON_BUILDER.build();
     }
 
-    public static BlockState getPrimaryCarpet() {
-        StringReader reader = new StringReader(PRIMARY_CARPET.get());
+    private static BlockState getBlockState(StringReader resource) {
         try {
-            BlockStateParser parser = new BlockStateParser(reader,false).parse(false);
+            BlockStateParser parser = new BlockStateParser(resource, false).parse(false);
             return parser.getState();
         } catch (CommandSyntaxException e) {
             SafeSpawn.LOGGER.error(e.getMessage());
-            return Blocks.PURPLE_CARPET.defaultBlockState();
+            return Blocks.AIR.defaultBlockState();
         }
+    }
+
+    public static BlockState getRandomCrop(Random random) {
+        StringReader reader = new StringReader (VALID_CROPS.get().get(random.nextInt(VALID_CROPS.get().size())));
+        return getBlockState(reader);
+    }
+
+    public static BlockState getPrimaryCarpet() {
+        StringReader reader = new StringReader(PRIMARY_CARPET.get());
+        return getBlockState(reader);
     }
 
     public static BlockState getSecondaryCarpet() {
         StringReader reader = new StringReader(SECONDARY_CARPET.get());
-        try {
-            BlockStateParser parser = new BlockStateParser(reader,false).parse(false);
-            return parser.getState();
-        } catch (CommandSyntaxException e) {
-            SafeSpawn.LOGGER.error(e.getMessage());
-            return Blocks.BLACK_CARPET.defaultBlockState();
-        }
+        return getBlockState(reader);
     }
 
     public static BlockState getDaisFocal() {
         StringReader reader = new StringReader(DAIS_FOCAL.get());
-        try {
-            BlockStateParser parser = new BlockStateParser(reader,false).parse(false);
-            return parser.getState();
-        } catch (CommandSyntaxException e) {
-            SafeSpawn.LOGGER.error(e.getMessage());
-            return BEACONBLOCK.get().defaultBlockState();
-        }
+        return getBlockState(reader);
     }
 
-    public static EffectInstance getPlayerEffectPrimary() {
+    public static BlockState getDaisFocal2() {
+        StringReader reader = new StringReader(DAIS_FOCAL2.get());
+        return getBlockState(reader);
+    }
+
+    public static MobEffectInstance getPlayerEffectPrimary() {
         try {
             if (!EFFECT_PLAYER_PRIMARYEFFECT.get().isEmpty()) {
                 StringReader reader = new StringReader(EFFECT_PLAYER_PRIMARYEFFECT.get());
-                Effect effect = new PotionArgument().parse(reader);
-                return new EffectInstance(effect, EFFECT_PLAYER_PRIMARYDURATION.get(), EFFECT_PLAYER_PRIMARYPOWER.get(), true, true, false);
+                MobEffect effect = new MobEffectArgument().parse(reader);
+                return new MobEffectInstance(effect, EFFECT_PLAYER_PRIMARYDURATION.get(), EFFECT_PLAYER_PRIMARYPOWER.get(), true, true, false);
             } else {
                 return null;
             }
@@ -178,12 +188,12 @@ public class Config {
         }
     }
 
-    public static EffectInstance getPlayerEffectSecondary() {
+    public static MobEffectInstance getPlayerEffectSecondary() {
         try {
             if (!EFFECT_PLAYER_SECONDARYEFFECT.get().isEmpty()) {
                 StringReader reader = new StringReader(EFFECT_PLAYER_SECONDARYEFFECT.get());
-                Effect effect = new PotionArgument().parse(reader);
-                return new EffectInstance(effect, EFFECT_PLAYER_SECONDARYDURATION.get(), EFFECT_PLAYER_SECONDARYPOWER.get(), true, true, false);
+                MobEffect effect = new MobEffectArgument().parse(reader);
+                return new MobEffectInstance(effect, EFFECT_PLAYER_SECONDARYDURATION.get(), EFFECT_PLAYER_SECONDARYPOWER.get(), true, true, false);
             } else {
                 return null;
             }
@@ -193,12 +203,12 @@ public class Config {
         }
     }
 
-    public static EffectInstance getAnimalEffectPrimary() {
+    public static MobEffectInstance getAnimalEffectPrimary() {
         try {
             if (!EFFECT_ANIMAL_PRIMARYEFFECT.get().isEmpty()) {
                 StringReader reader = new StringReader(EFFECT_ANIMAL_PRIMARYEFFECT.get());
-                Effect effect = new PotionArgument().parse(reader);
-                return new EffectInstance(effect, EFFECT_ANIMAL_PRIMARYDURATION.get(), EFFECT_ANIMAL_PRIMARYPOWER.get(), true, true, false);
+                MobEffect effect = new MobEffectArgument().parse(reader);
+                return new MobEffectInstance(effect, EFFECT_ANIMAL_PRIMARYDURATION.get(), EFFECT_ANIMAL_PRIMARYPOWER.get(), true, true, false);
             } else {
                 return null;
             }
@@ -208,12 +218,12 @@ public class Config {
         }
     }
 
-    public static EffectInstance getAnimalEffectSecondary() {
+    public static MobEffectInstance getAnimalEffectSecondary() {
         try {
             if (!EFFECT_ANIMAL_SECONDARYEFFECT.get().isEmpty()) {
                 StringReader reader = new StringReader(EFFECT_ANIMAL_SECONDARYEFFECT.get());
-                Effect effect = new PotionArgument().parse(reader);
-                return new EffectInstance(effect, EFFECT_ANIMAL_SECONDARYDURATION.get(), EFFECT_ANIMAL_SECONDARYPOWER.get(), true, true, false);
+                MobEffect effect = new MobEffectArgument().parse(reader);
+                return new MobEffectInstance(effect, EFFECT_ANIMAL_SECONDARYDURATION.get(), EFFECT_ANIMAL_SECONDARYPOWER.get(), true, true, false);
             } else {
                 return null;
             }
@@ -223,12 +233,12 @@ public class Config {
         }
     }
 
-    public static EffectInstance getMonsterEffectPrimary() {
+    public static MobEffectInstance getMonsterEffectPrimary() {
         try {
             if (!EFFECT_MONSTER_PRIMARYEFFECT.get().isEmpty()) {
                 StringReader reader = new StringReader(EFFECT_MONSTER_PRIMARYEFFECT.get());
-                Effect effect = new PotionArgument().parse(reader);
-                return new EffectInstance(effect, EFFECT_MONSTER_PRIMARYDURATION.get(), EFFECT_MONSTER_PRIMARYPOWER.get(), true, true, false);
+                MobEffect effect = new MobEffectArgument().parse(reader);
+                return new MobEffectInstance(effect, EFFECT_MONSTER_PRIMARYDURATION.get(), EFFECT_MONSTER_PRIMARYPOWER.get(), true, true, false);
             } else {
                 return null;
             }
@@ -238,12 +248,12 @@ public class Config {
         }
     }
 
-    public static EffectInstance getMonsterEffectSecondary() {
+    public static MobEffectInstance getMonsterEffectSecondary() {
         try {
             if (!EFFECT_MONSTER_SECONDARYEFFECT.get().isEmpty()) {
                 StringReader reader = new StringReader(EFFECT_MONSTER_SECONDARYEFFECT.get());
-                Effect effect = new PotionArgument().parse(reader);
-                return new EffectInstance(effect, EFFECT_MONSTER_SECONDARYDURATION.get(), EFFECT_MONSTER_SECONDARYPOWER.get(), true, true, false);
+                MobEffect effect = new MobEffectArgument().parse(reader);
+                return new MobEffectInstance(effect, EFFECT_MONSTER_SECONDARYDURATION.get(), EFFECT_MONSTER_SECONDARYPOWER.get(), true, true, false);
             } else {
                 return null;
             }
@@ -253,12 +263,12 @@ public class Config {
         }
     }
 
-    public static EffectInstance getCriticalEffectPrimary() {
+    public static MobEffectInstance getCriticalEffectPrimary() {
         try {
             if (!EFFECT_MONSTER_CRITICAL_PRIMARYEFFECT.get().isEmpty()) {
                 StringReader reader = new StringReader(EFFECT_MONSTER_CRITICAL_PRIMARYEFFECT.get());
-                Effect effect = new PotionArgument().parse(reader);
-                return new EffectInstance(effect, EFFECT_MONSTER_CRITICAL_PRIMARYDURATION.get(), EFFECT_MONSTER_CRITICAL_PRIMARYPOWER.get(), true, true, false);
+                MobEffect effect = new MobEffectArgument().parse(reader);
+                return new MobEffectInstance(effect, EFFECT_MONSTER_CRITICAL_PRIMARYDURATION.get(), EFFECT_MONSTER_CRITICAL_PRIMARYPOWER.get(), true, true, false);
             } else {
                 return null;
             }
@@ -268,12 +278,12 @@ public class Config {
         }
     }
 
-    public static EffectInstance getCriticalEffectSecondary() {
+    public static MobEffectInstance getCriticalEffectSecondary() {
         try {
             if (!EFFECT_MONSTER_CRITICAL_SECONDARYEFFECT.get().isEmpty()) {
                 StringReader reader = new StringReader(EFFECT_MONSTER_CRITICAL_SECONDARYEFFECT.get());
-                Effect effect = new PotionArgument().parse(reader);
-                return new EffectInstance(effect, EFFECT_MONSTER_CRITICAL_SECONDARYDURATION.get(), EFFECT_MONSTER_CRITICAL_SECONDARYPOWER.get(), true, true, false);
+                MobEffect effect = new MobEffectArgument().parse(reader);
+                return new MobEffectInstance(effect, EFFECT_MONSTER_CRITICAL_SECONDARYDURATION.get(), EFFECT_MONSTER_CRITICAL_SECONDARYPOWER.get(), true, true, false);
             } else {
                 return null;
             }

@@ -1,6 +1,8 @@
 {
   "pack": {
-    "pack_format": 6,
-    "description": "Resources used for SafeSpawn"
+    "description": "Resources used for SafeSpawn",
+    "pack_format": 9,
+    "forge:resource_pack_format": 8,
+    "forge:data_pack_format": 9
   }
 }
