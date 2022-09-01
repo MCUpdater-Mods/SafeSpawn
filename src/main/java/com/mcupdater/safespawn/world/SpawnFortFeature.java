@@ -5,6 +5,7 @@ import com.mcupdater.safespawn.setup.Config;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
@@ -170,9 +171,7 @@ public class SpawnFortFeature extends Feature<NoneFeatureConfiguration> {
             return;
         }
         BlockState blockState = Blocks.COBBLESTONE_STAIRS.defaultBlockState().setValue(BlockStateProperties.STAIRS_SHAPE, StairsShape.STRAIGHT).setValue(BlockStateProperties.HALF, Half.BOTTOM).setValue(BlockStateProperties.HORIZONTAL_FACING, direction);
-        SafeSpawn.LOGGER.info("probeRoute " + direction.getName() + " (" + blockPos.toString() + ") " + worldGen.getBlockState(blockPos).toString());
         if (isSoft(worldGen, blockPos)) {
-            SafeSpawn.LOGGER.info("Probe: " + direction.getName() + " " + recurse + " Stairs down");
             worldGen.setBlock(blockPos,blockState.setValue(BlockStateProperties.HORIZONTAL_FACING, direction.getOpposite()), 3);
             clearAbove(worldGen, blockPos.above());
             worldGen.setBlock(blockPos.relative(direction.getCounterClockWise()),blockState.setValue(BlockStateProperties.HORIZONTAL_FACING, direction.getOpposite()), 3);
@@ -186,10 +185,8 @@ public class SpawnFortFeature extends Feature<NoneFeatureConfiguration> {
             }
             probeRoute(worldGen, blockPos.below().relative(direction), direction, recurse+1);
             if (worldGen.getBlockState(blockPos.below()).is(Blocks.WATER)) {
-                SafeSpawn.LOGGER.info("Probe: " + direction.getName() + " " + recurse + " Dock");
                 buildDock(worldGen, blockPos.below(), direction);
             }
-            return;
         } else if (!isSoft(worldGen, blockPos.above())){
             SafeSpawn.LOGGER.info("Probe: " + direction.getName() + " " + recurse + " Stairs up");
             worldGen.setBlock(blockPos.above(1), blockState,3);
@@ -347,7 +344,11 @@ public class SpawnFortFeature extends Feature<NoneFeatureConfiguration> {
         placeBed(worldGen, blockPos.above().west(9).north(7), random, Direction.NORTH);
 
         // Place chests
-        placeChest(worldGen, blockPos.above().north(9).west(3), Direction.SOUTH, random);
+        if (Config.SAFESPAWN_BARREL.get()) {
+            placeBarrel(worldGen, blockPos.above().north(9).west(3), Direction.SOUTH, random);
+        } else {
+            placeChest(worldGen, blockPos.above().north(9).west(3), Direction.SOUTH, random);
+        }
         placeChest(worldGen, blockPos.above().north(9).east(3), Direction.SOUTH, random);
         placeChest(worldGen, blockPos.above().east(9).north(3), Direction.WEST, random);
         placeChest(worldGen, blockPos.above().east(9).south(3), Direction.WEST, random);
@@ -362,6 +363,12 @@ public class SpawnFortFeature extends Feature<NoneFeatureConfiguration> {
         BlockState block = Blocks.CHEST.defaultBlockState().setValue(BlockStateProperties.HORIZONTAL_FACING, direction);
         worldGen.setBlock(blockPos, block, 3);
         RandomizableContainerBlockEntity.setLootTable(worldGen, random, blockPos, BuiltInLootTables.SPAWN_BONUS_CHEST);
+    }
+
+    private void placeBarrel(WorldGenLevel worldGen, BlockPos blockPos, Direction direction, Random random) {
+        BlockState block = Blocks.BARREL.defaultBlockState().setValue(BlockStateProperties.FACING, direction);
+        worldGen.setBlock(blockPos, block, 3);
+        RandomizableContainerBlockEntity.setLootTable(worldGen, random, blockPos, new ResourceLocation(SafeSpawn.MODID,"chests/safespawn"));
     }
 
     private void placeLampPost(WorldGenLevel worldGen, BlockPos blockPos) {

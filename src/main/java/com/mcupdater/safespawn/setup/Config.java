@@ -69,68 +69,71 @@ public class Config {
     private static ForgeConfigSpec.IntValue EFFECT_MONSTER_CRITICAL_SECONDARYPOWER;
     private static ForgeConfigSpec.IntValue EFFECT_MONSTER_CRITICAL_SECONDARYDURATION;
 
+    public static ForgeConfigSpec.BooleanValue SAFESPAWN_BARREL;
+
     static {
         ForgeConfigSpec.Builder COMMON_BUILDER = new ForgeConfigSpec.Builder();
         COMMON_BUILDER.comment("General settings").push(CATEGORY_GENERAL);
         {
-            EXTEND_PATHS = COMMON_BUILDER.comment("Extend stairs and create docks").translation("safespawn.config.extend_paths").define("ExtendPaths", true);
-            PRIMARY_CARPET = COMMON_BUILDER.comment("Center carpet").translation("safespawn.config.primary_carpet").define("PrimaryCarpet","minecraft:purple_carpet");
-            SECONDARY_CARPET = COMMON_BUILDER.comment("Edge carpet").translation("safespawn.config.secondary_carpet").define("SecondaryCarpet", "minecraft:black_carpet");
-            DAIS_FOCAL = COMMON_BUILDER.comment("Block on top of dais").translation("safespawn.config.dais_focal").define("DaisFocal", "safespawn:inert_beacon");
-            DAIS_FOCAL2 = COMMON_BUILDER.comment("Block on top of dais Y+1").translation("safespawn.config.dais_focal").define("DaisFocal2", "minecraft:air");
-            FARM_PLOTS = COMMON_BUILDER.comment("Generate farm plots").translation("safespawn.config.farm_plots").define("FarmPlots", true);
-            VALID_CROPS = COMMON_BUILDER.comment("List of valid crops for farm plots").translation("safespawn.config.valid_crops").defineList("ValidCrops", Arrays.asList("minecraft:wheat","minecraft:carrots","minecraft:potatoes","minecraft:beetroots","minecraft:melon_stem","minecraft:pumpkin_stem"), (x) -> true);
+            EXTEND_PATHS = COMMON_BUILDER.comment("Extend stairs and create docks").define("ExtendPaths", true);
+            PRIMARY_CARPET = COMMON_BUILDER.comment("Center carpet").define("PrimaryCarpet","minecraft:purple_carpet");
+            SECONDARY_CARPET = COMMON_BUILDER.comment("Edge carpet").define("SecondaryCarpet", "minecraft:black_carpet");
+            DAIS_FOCAL = COMMON_BUILDER.comment("Block on top of dais").define("DaisFocal", "safespawn:inert_beacon");
+            DAIS_FOCAL2 = COMMON_BUILDER.comment("Block on top of dais Y+1").define("DaisFocal2", "minecraft:air");
+            FARM_PLOTS = COMMON_BUILDER.comment("Generate farm plots").define("FarmPlots", true);
+            VALID_CROPS = COMMON_BUILDER.comment("List of valid crops for farm plots").defineList("ValidCrops", Arrays.asList("minecraft:wheat","minecraft:carrots","minecraft:potatoes","minecraft:beetroots","minecraft:melon_stem","minecraft:pumpkin_stem"), (x) -> true);
+            SAFESPAWN_BARREL = COMMON_BUILDER.comment("Replace one chest with barrel of special loot (override using data/safespawn/loot_tables/chests/safespawn.json)").define("SafeSpawnBarrel", true);
         }
         COMMON_BUILDER.pop();
         COMMON_BUILDER.comment("Effects").push(CATEGORY_EFFECTS);
         {
             COMMON_BUILDER.comment("Player effect").push(CATEGORY_EFFECTS_PLAYER);
             {
-                EFFECT_PLAYER_ENABLED = COMMON_BUILDER.comment("Enabled").translation("safespawn.config.enabled").define("enabled",true);
-                EFFECT_PLAYER_RANGE = COMMON_BUILDER.comment("Effect range").translation("safespawn.config.range").defineInRange("range",4,0,16);
-                EFFECT_PLAYER_HEALTHPCT = COMMON_BUILDER.comment("Max health percentage to trigger").translation("safespawn.config.healthpct").defineInRange("health_pct", 30, 0, 100);
-                EFFECT_PLAYER_PRIMARYEFFECT = COMMON_BUILDER.comment("Primary effect to apply").translation("safespawn.config.effect").define("primary_effect","minecraft:regeneration");
-                EFFECT_PLAYER_PRIMARYPOWER = COMMON_BUILDER.comment("Strength of the primary effect").translation("safespawn.config.effect").defineInRange("primary_power", 3, 0, 10);
-                EFFECT_PLAYER_PRIMARYDURATION = COMMON_BUILDER.comment("Duration of the primary effect in ticks").translation("safespawn.config.duration").defineInRange("primary_duration", 40, 0, 100000);
-                EFFECT_PLAYER_SECONDARYEFFECT = COMMON_BUILDER.comment("Secondary effect to apply").translation("safespawn.config.effect").define("secondary_effect","");
-                EFFECT_PLAYER_SECONDARYPOWER = COMMON_BUILDER.comment("Strength of the secondary effect").translation("safespawn.config.effect").defineInRange("secondary_power", 0, 0, 10);
-                EFFECT_PLAYER_SECONDARYDURATION = COMMON_BUILDER.comment("Duration of the secondary effect in ticks").translation("safespawn.config.duration").defineInRange("secondary_duration", 0, 0, 100000);
+                EFFECT_PLAYER_ENABLED = COMMON_BUILDER.comment("Enabled").define("enabled",true);
+                EFFECT_PLAYER_RANGE = COMMON_BUILDER.comment("Effect range").defineInRange("range",4,0,16);
+                EFFECT_PLAYER_HEALTHPCT = COMMON_BUILDER.comment("Max health percentage to trigger").defineInRange("health_pct", 30, 0, 100);
+                EFFECT_PLAYER_PRIMARYEFFECT = COMMON_BUILDER.comment("Primary effect to apply").define("primary_effect","minecraft:regeneration");
+                EFFECT_PLAYER_PRIMARYPOWER = COMMON_BUILDER.comment("Strength of the primary effect").defineInRange("primary_power", 3, 0, 10);
+                EFFECT_PLAYER_PRIMARYDURATION = COMMON_BUILDER.comment("Duration of the primary effect in ticks").defineInRange("primary_duration", 40, 0, 100000);
+                EFFECT_PLAYER_SECONDARYEFFECT = COMMON_BUILDER.comment("Secondary effect to apply").define("secondary_effect","");
+                EFFECT_PLAYER_SECONDARYPOWER = COMMON_BUILDER.comment("Strength of the secondary effect").defineInRange("secondary_power", 0, 0, 10);
+                EFFECT_PLAYER_SECONDARYDURATION = COMMON_BUILDER.comment("Duration of the secondary effect in ticks").defineInRange("secondary_duration", 0, 0, 100000);
             }
             COMMON_BUILDER.pop();
             COMMON_BUILDER.comment("Animal effect").push(CATEGORY_EFFECTS_ANIMAL);
             {
-                EFFECT_ANIMAL_ENABLED = COMMON_BUILDER.comment("Enabled").translation("safespawn.config.enabled").define("enabled",true);
-                EFFECT_ANIMAL_RANGE = COMMON_BUILDER.comment("Effect range").translation("safespawn.config.range").defineInRange("range",10,0,16);
-                EFFECT_ANIMAL_PRIMARYEFFECT = COMMON_BUILDER.comment("Primary effect to apply").translation("safespawn.config.effect").define("primary_effect","minecraft:regeneration");
-                EFFECT_ANIMAL_PRIMARYPOWER = COMMON_BUILDER.comment("Strength of the primary effect").translation("safespawn.config.effect").defineInRange("primary_ power", 0, 0, 10);
-                EFFECT_ANIMAL_PRIMARYDURATION = COMMON_BUILDER.comment("Duration of the primary effect in ticks").translation("safespawn.config.duration").defineInRange("primary_duration", 100, 0, 100000);
-                EFFECT_ANIMAL_SECONDARYEFFECT = COMMON_BUILDER.comment("Secondary effect to apply").translation("safespawn.config.effect").define("secondary_effect","");
-                EFFECT_ANIMAL_SECONDARYPOWER = COMMON_BUILDER.comment("Strength of the secondary effect").translation("safespawn.config.effect").defineInRange("secondary_power", 0, 0, 10);
-                EFFECT_ANIMAL_SECONDARYDURATION = COMMON_BUILDER.comment("Duration of the secondary effect in ticks").translation("safespawn.config.duration").defineInRange("secondary_duration", 0, 0, 100000);
+                EFFECT_ANIMAL_ENABLED = COMMON_BUILDER.comment("Enabled").define("enabled",true);
+                EFFECT_ANIMAL_RANGE = COMMON_BUILDER.comment("Effect range").defineInRange("range",10,0,16);
+                EFFECT_ANIMAL_PRIMARYEFFECT = COMMON_BUILDER.comment("Primary effect to apply").define("primary_effect","minecraft:regeneration");
+                EFFECT_ANIMAL_PRIMARYPOWER = COMMON_BUILDER.comment("Strength of the primary effect").defineInRange("primary_ power", 0, 0, 10);
+                EFFECT_ANIMAL_PRIMARYDURATION = COMMON_BUILDER.comment("Duration of the primary effect in ticks").defineInRange("primary_duration", 100, 0, 100000);
+                EFFECT_ANIMAL_SECONDARYEFFECT = COMMON_BUILDER.comment("Secondary effect to apply").define("secondary_effect","");
+                EFFECT_ANIMAL_SECONDARYPOWER = COMMON_BUILDER.comment("Strength of the secondary effect").defineInRange("secondary_power", 0, 0, 10);
+                EFFECT_ANIMAL_SECONDARYDURATION = COMMON_BUILDER.comment("Duration of the secondary effect in ticks").defineInRange("secondary_duration", 0, 0, 100000);
             }
             COMMON_BUILDER.pop();
             COMMON_BUILDER.comment("Monster effect").push(CATEGORY_EFFECTS_MONSTER);
             {
-                EFFECT_MONSTER_ENABLED = COMMON_BUILDER.comment("Enabled").translation("safespawn.config.enabled").define("enabled",true);
-                EFFECT_MONSTER_RANGE = COMMON_BUILDER.comment("Effect range").translation("safespawn.config.range").defineInRange("range",12,0,16);
-                EFFECT_MONSTER_PRIMARYEFFECT = COMMON_BUILDER.comment("Primary effect to apply").translation("safespawn.config.effect").define("primary_effect","minecraft:wither");
-                EFFECT_MONSTER_PRIMARYPOWER = COMMON_BUILDER.comment("Strength of the primary effect").translation("safespawn.config.effect").defineInRange("primary_power", 2, 0, 10);
-                EFFECT_MONSTER_PRIMARYDURATION = COMMON_BUILDER.comment("Duration of the primary effect in ticks").translation("safespawn.config.duration").defineInRange("primary_duration", 200, 0, 100000);
-                EFFECT_MONSTER_SECONDARYEFFECT = COMMON_BUILDER.comment("Secondary effect to apply").translation("safespawn.config.effect").define("secondary_effect","minecraft:glowing");
-                EFFECT_MONSTER_SECONDARYPOWER = COMMON_BUILDER.comment("Strength of the secondary effect").translation("safespawn.config.effect").defineInRange("secondary_power", 0, 0, 10);
-                EFFECT_MONSTER_SECONDARYDURATION = COMMON_BUILDER.comment("Duration of the secondary effect in ticks").translation("safespawn.config.duration").defineInRange("secondary_duration", 1000, 0, 100000);
+                EFFECT_MONSTER_ENABLED = COMMON_BUILDER.comment("Enabled").define("enabled",true);
+                EFFECT_MONSTER_RANGE = COMMON_BUILDER.comment("Effect range").defineInRange("range",12,0,16);
+                EFFECT_MONSTER_PRIMARYEFFECT = COMMON_BUILDER.comment("Primary effect to apply").define("primary_effect","minecraft:wither");
+                EFFECT_MONSTER_PRIMARYPOWER = COMMON_BUILDER.comment("Strength of the primary effect").defineInRange("primary_power", 2, 0, 10);
+                EFFECT_MONSTER_PRIMARYDURATION = COMMON_BUILDER.comment("Duration of the primary effect in ticks").defineInRange("primary_duration", 200, 0, 100000);
+                EFFECT_MONSTER_SECONDARYEFFECT = COMMON_BUILDER.comment("Secondary effect to apply").define("secondary_effect","minecraft:glowing");
+                EFFECT_MONSTER_SECONDARYPOWER = COMMON_BUILDER.comment("Strength of the secondary effect").defineInRange("secondary_power", 0, 0, 10);
+                EFFECT_MONSTER_SECONDARYDURATION = COMMON_BUILDER.comment("Duration of the secondary effect in ticks").defineInRange("secondary_duration", 1000, 0, 100000);
             }
             COMMON_BUILDER.pop();
             COMMON_BUILDER.comment("Monster critical range effect").push(CATEGORY_EFFECTS_CRITICAL);
             {
-                EFFECT_MONSTER_CRITICAL_ENABLED = COMMON_BUILDER.comment("Enabled").translation("safespawn.config.enabled").define("enabled",true);
-                EFFECT_MONSTER_CRITICAL_RANGE = COMMON_BUILDER.comment("Effect range").translation("safespawn.config.range").defineInRange("monster_critical_range",8,0,16);
-                EFFECT_MONSTER_CRITICAL_PRIMARYEFFECT = COMMON_BUILDER.comment("Primary effect to apply").translation("safespawn.config.effect").define("primary_effect","minecraft:slowness");
-                EFFECT_MONSTER_CRITICAL_PRIMARYPOWER = COMMON_BUILDER.comment("Strength of the primary effect").translation("safespawn.config.effect").defineInRange("primary_power", 5, 0, 10);
-                EFFECT_MONSTER_CRITICAL_PRIMARYDURATION = COMMON_BUILDER.comment("Duration of the primary effect in ticks").translation("safespawn.config.duration").defineInRange("primary_duration", 200, 0, 100000);
-                EFFECT_MONSTER_CRITICAL_SECONDARYEFFECT = COMMON_BUILDER.comment("Secondary effect to apply").translation("safespawn.config.effect").define("secondary_effect","");
-                EFFECT_MONSTER_CRITICAL_SECONDARYPOWER = COMMON_BUILDER.comment("Strength of the secondary effect").translation("safespawn.config.effect").defineInRange("secondary_power", 0, 0, 10);
-                EFFECT_MONSTER_CRITICAL_SECONDARYDURATION = COMMON_BUILDER.comment("Duration of the secondary effect in ticks").translation("safespawn.config.duration").defineInRange("secondary_duration", 0, 0, 100000);
+                EFFECT_MONSTER_CRITICAL_ENABLED = COMMON_BUILDER.comment("Enabled").define("enabled",true);
+                EFFECT_MONSTER_CRITICAL_RANGE = COMMON_BUILDER.comment("Effect range").defineInRange("monster_critical_range",8,0,16);
+                EFFECT_MONSTER_CRITICAL_PRIMARYEFFECT = COMMON_BUILDER.comment("Primary effect to apply").define("primary_effect","minecraft:slowness");
+                EFFECT_MONSTER_CRITICAL_PRIMARYPOWER = COMMON_BUILDER.comment("Strength of the primary effect").defineInRange("primary_power", 5, 0, 10);
+                EFFECT_MONSTER_CRITICAL_PRIMARYDURATION = COMMON_BUILDER.comment("Duration of the primary effect in ticks").defineInRange("primary_duration", 200, 0, 100000);
+                EFFECT_MONSTER_CRITICAL_SECONDARYEFFECT = COMMON_BUILDER.comment("Secondary effect to apply").define("secondary_effect","");
+                EFFECT_MONSTER_CRITICAL_SECONDARYPOWER = COMMON_BUILDER.comment("Strength of the secondary effect").defineInRange("secondary_power", 0, 0, 10);
+                EFFECT_MONSTER_CRITICAL_SECONDARYDURATION = COMMON_BUILDER.comment("Duration of the secondary effect in ticks").defineInRange("secondary_duration", 0, 0, 100000);
             }
             COMMON_BUILDER.pop();
         }

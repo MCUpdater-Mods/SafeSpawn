@@ -1,4 +1,6 @@
 {
+  "itemGroup.safespawn": "SafeSpawn",
   "block.safespawn.inert_beacon": "Inert Beacon",
-  "block.safespawn.spawn_heart": "Heart of Spawn"
+  "block.safespawn.spawn_heart": "Heart of Spawn",
+
 }
