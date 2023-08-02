@@ -1,5 +1,6 @@
 {
   "parent": "minecraft:block/beacon",
+  "render_type": "cutout_mipped",
   "textures": {
     "particle": "minecraft:block/glass",
     "glass": "minecraft:block/glass",

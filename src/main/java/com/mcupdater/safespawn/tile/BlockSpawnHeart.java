@@ -16,7 +16,7 @@ import javax.annotation.Nullable;
 public class BlockSpawnHeart extends BaseEntityBlock {
 
     public BlockSpawnHeart(){
-        super(Properties.of(Material.STONE).strength(-1.0F, 3600000.0F).noDrops().isValidSpawn((p_test_1_, p_test_2_, p_test_3_, p_test_4_) -> false));
+        super(Properties.of(Material.STONE).strength(-1.0F, 3600000.0F).isValidSpawn((p_test_1_, p_test_2_, p_test_3_, p_test_4_) -> false));
     }
 
     @Override

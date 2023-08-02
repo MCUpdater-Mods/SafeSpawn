@@ -5,6 +5,8 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.arguments.MobEffectArgument;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
+import net.minecraft.core.Registry;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.level.block.Blocks;
@@ -13,7 +15,6 @@ import net.minecraftforge.common.ForgeConfigSpec;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 
 public class Config {
     public static ForgeConfigSpec COMMON_CONFIG;
@@ -143,15 +144,14 @@ public class Config {
 
     private static BlockState getBlockState(StringReader resource) {
         try {
-            BlockStateParser parser = new BlockStateParser(resource, false).parse(false);
-            return parser.getState();
+            return BlockStateParser.parseForBlock(Registry.BLOCK, resource, false).blockState();
         } catch (CommandSyntaxException e) {
             SafeSpawn.LOGGER.error(e.getMessage());
             return Blocks.AIR.defaultBlockState();
         }
     }
 
-    public static BlockState getRandomCrop(Random random) {
+    public static BlockState getRandomCrop(RandomSource random) {
         StringReader reader = new StringReader (VALID_CROPS.get().get(random.nextInt(VALID_CROPS.get().size())));
         return getBlockState(reader);
     }

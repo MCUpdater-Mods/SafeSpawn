@@ -11,7 +11,7 @@ import static com.mcupdater.safespawn.setup.Registration.BEACONBLOCK_TILE;
 public class ClientSetup {
 
     public static void init(final FMLClientSetupEvent event) {
-        ItemBlockRenderTypes.setRenderLayer(Registration.BEACONBLOCK.get(), RenderType.cutoutMipped());
+        //ItemBlockRenderTypes.setRenderLayer(Registration.BEACONBLOCK.get(), RenderType.cutoutMipped());
         BlockEntityRenderers.register(BEACONBLOCK_TILE.get(), TileRendererInertBeam::new);
     }
 }

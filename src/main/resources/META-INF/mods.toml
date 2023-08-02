@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[36,)"
+loaderVersion="[43,)"
 license="Apache License 2.0"
 [[mods]]
 modId="safespawn"
@@ -12,13 +12,13 @@ Creates a safe area at spawn
 [[dependencies.safespawn]]
     modId="forge"
     mandatory=true
-    versionRange="[36.1.0,)"
+    versionRange="[43.2.0,)"
     ordering="NONE"
     side="BOTH"
 
 [[dependencies.safespawn]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.16.5,)"
+    versionRange="[1.19.2,)"
     ordering="NONE"
     side="BOTH"

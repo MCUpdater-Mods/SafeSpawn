@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
@@ -21,7 +22,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Optional;
-import java.util.Random;
 
 import static com.mcupdater.safespawn.setup.Registration.SPAWNHEARTBLOCK;
 
@@ -30,7 +30,7 @@ public class SpawnFortFeature extends Feature<NoneFeatureConfiguration> {
         super(codec);
     }
     @Override
-    public boolean place(NoneFeatureConfiguration noneFeatureConfiguration, WorldGenLevel worldGen, ChunkGenerator chunkGenerator, Random random, BlockPos blockPos) {
+    public boolean place(NoneFeatureConfiguration noneFeatureConfiguration, WorldGenLevel worldGen, ChunkGenerator chunkGenerator, RandomSource random, BlockPos blockPos) {
         return place(new FeaturePlaceContext<>(Optional.empty(), worldGen, chunkGenerator, random, blockPos, noneFeatureConfiguration));
     }
         @Override
@@ -49,7 +49,7 @@ public class SpawnFortFeature extends Feature<NoneFeatureConfiguration> {
         return true;
     }
 
-    private void createFarmPlots(WorldGenLevel worldGen, BlockPos blockPos, Random random) {
+    private void createFarmPlots(WorldGenLevel worldGen, BlockPos blockPos, RandomSource random) {
         createPlot(worldGen, blockPos, random, Direction.NORTH, Direction.WEST);
         createPlot(worldGen, blockPos, random, Direction.NORTH, Direction.EAST);
         createPlot(worldGen, blockPos, random, Direction.EAST, Direction.NORTH);
@@ -60,7 +60,7 @@ public class SpawnFortFeature extends Feature<NoneFeatureConfiguration> {
         createPlot(worldGen, blockPos, random, Direction.WEST, Direction.NORTH);
     }
 
-    private void createPlot(WorldGenLevel worldGen, BlockPos blockPos, Random random, Direction out, Direction turn) {
+    private void createPlot(WorldGenLevel worldGen, BlockPos blockPos, RandomSource random, Direction out, Direction turn) {
         BlockState farmland = Blocks.FARMLAND.defaultBlockState();
         BlockState waterSource = Blocks.OAK_SLAB.defaultBlockState().setValue(BlockStateProperties.SLAB_TYPE, SlabType.TOP).setValue(BlockStateProperties.WATERLOGGED, true);
         worldGen.setBlock(blockPos.relative(out,13).relative(turn,8), waterSource, 3);
@@ -70,7 +70,7 @@ public class SpawnFortFeature extends Feature<NoneFeatureConfiguration> {
         }
     }
 
-    private void createTrim(WorldGenLevel worldGen, BlockPos blockPos, Random random) {
+    private void createTrim(WorldGenLevel worldGen, BlockPos blockPos, RandomSource random) {
         int xOffset = blockPos.getX();
         int yOffset = blockPos.getY();
         int zOffset = blockPos.getZ();
@@ -122,7 +122,7 @@ public class SpawnFortFeature extends Feature<NoneFeatureConfiguration> {
         }
     }
 
-    private void createNook(WorldGenLevel worldGen, Random random, BlockPos nookPos, Direction facing) {
+    private void createNook(WorldGenLevel worldGen, RandomSource random, BlockPos nookPos, Direction facing) {
         for (int i = 0; i < 4; i++) {
             BlockState block = getStoneBlock(random, true);
             block = block.setValue(BlockStateProperties.HALF, Half.TOP).setValue(BlockStateProperties.HORIZONTAL_FACING, facing);
@@ -244,7 +244,7 @@ public class SpawnFortFeature extends Feature<NoneFeatureConfiguration> {
         }
     }
 
-    private void decorate(WorldGenLevel worldGen, BlockPos blockPos, Random random) {
+    private void decorate(WorldGenLevel worldGen, BlockPos blockPos, RandomSource random) {
         placeFloorlights(worldGen, blockPos);
 
         // Place carpets
@@ -359,13 +359,13 @@ public class SpawnFortFeature extends Feature<NoneFeatureConfiguration> {
 
     }
 
-    private void placeChest(WorldGenLevel worldGen, BlockPos blockPos, Direction direction, Random random) {
+    private void placeChest(WorldGenLevel worldGen, BlockPos blockPos, Direction direction, RandomSource random) {
         BlockState block = Blocks.CHEST.defaultBlockState().setValue(BlockStateProperties.HORIZONTAL_FACING, direction);
         worldGen.setBlock(blockPos, block, 3);
         RandomizableContainerBlockEntity.setLootTable(worldGen, random, blockPos, BuiltInLootTables.SPAWN_BONUS_CHEST);
     }
 
-    private void placeBarrel(WorldGenLevel worldGen, BlockPos blockPos, Direction direction, Random random) {
+    private void placeBarrel(WorldGenLevel worldGen, BlockPos blockPos, Direction direction, RandomSource random) {
         BlockState block = Blocks.BARREL.defaultBlockState().setValue(BlockStateProperties.FACING, direction);
         worldGen.setBlock(blockPos, block, 3);
         RandomizableContainerBlockEntity.setLootTable(worldGen, random, blockPos, new ResourceLocation(SafeSpawn.MODID,"chests/safespawn"));
@@ -379,7 +379,7 @@ public class SpawnFortFeature extends Feature<NoneFeatureConfiguration> {
         worldGen.setBlock(blockPos.above(2), lamp, 3);
     }
 
-    private void placeBed(WorldGenLevel worldGen, BlockPos blockPos, Random random, Direction direction) {
+    private void placeBed(WorldGenLevel worldGen, BlockPos blockPos, RandomSource random, Direction direction) {
         BlockState block = null;
         switch(random.nextInt(16)){
             case 0:
@@ -549,7 +549,7 @@ public class SpawnFortFeature extends Feature<NoneFeatureConfiguration> {
         worldGen.setBlock(blockPos.above(4), Config.getDaisFocal2(), 2);
     }
 
-    private void createWalls(WorldGenLevel worldGen, BlockPos blockPos, Random random) {
+    private void createWalls(WorldGenLevel worldGen, BlockPos blockPos, RandomSource random) {
         int xOffset = blockPos.getX();
         int yOffset = blockPos.getY();
         int zOffset = blockPos.getZ();
@@ -566,7 +566,7 @@ public class SpawnFortFeature extends Feature<NoneFeatureConfiguration> {
         }
     }
 
-    private void createFloor(WorldGenLevel worldGen, BlockPos blockPos, Random random) {
+    private void createFloor(WorldGenLevel worldGen, BlockPos blockPos, RandomSource random) {
         int y = blockPos.getY();
         int xOffset = blockPos.getX();
         int zOffset = blockPos.getZ();
@@ -584,7 +584,7 @@ public class SpawnFortFeature extends Feature<NoneFeatureConfiguration> {
         }
     }
 
-    private BlockState getStoneBlock(Random random, boolean stairs) {
+    private BlockState getStoneBlock(RandomSource random, boolean stairs) {
         if (stairs){
             return random.nextBoolean() ? Blocks.STONE_BRICK_STAIRS.defaultBlockState() : Blocks.MOSSY_STONE_BRICK_STAIRS.defaultBlockState();
         } else {
