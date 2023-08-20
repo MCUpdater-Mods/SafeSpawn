@@ -1,23 +1,20 @@
 package com.mcupdater.safespawn.setup;
 
 import com.mcupdater.safespawn.SafeSpawn;
-import com.mojang.brigadier.StringReader;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.minecraft.commands.arguments.MobEffectArgument;
-import net.minecraft.commands.arguments.blocks.BlockStateParser;
-import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Config {
-    public static ForgeConfigSpec COMMON_CONFIG;
+    public static final ForgeConfigSpec COMMON_CONFIG;
 
     public static final String CATEGORY_GENERAL = "general";
     public static final String CATEGORY_EFFECTS = "effects";
@@ -31,7 +28,7 @@ public class Config {
     private static ForgeConfigSpec.ConfigValue<String> DAIS_FOCAL;
     private static ForgeConfigSpec.ConfigValue<String> DAIS_FOCAL2;
     public static ForgeConfigSpec.BooleanValue FARM_PLOTS;
-    private static ForgeConfigSpec.ConfigValue<List<? extends String>> VALID_CROPS;
+    public static ForgeConfigSpec.ConfigValue<List<? extends String>> VALID_CROPS;
 
     public static ForgeConfigSpec.BooleanValue EFFECT_PLAYER_ENABLED;
     public static ForgeConfigSpec.IntValue EFFECT_PLAYER_RANGE;
@@ -82,7 +79,7 @@ public class Config {
             DAIS_FOCAL = COMMON_BUILDER.comment("Block on top of dais").define("DaisFocal", "safespawn:inert_beacon");
             DAIS_FOCAL2 = COMMON_BUILDER.comment("Block on top of dais Y+1").define("DaisFocal2", "minecraft:air");
             FARM_PLOTS = COMMON_BUILDER.comment("Generate farm plots").define("FarmPlots", true);
-            VALID_CROPS = COMMON_BUILDER.comment("List of valid crops for farm plots").defineList("ValidCrops", Arrays.asList("minecraft:wheat","minecraft:carrots","minecraft:potatoes","minecraft:beetroots","minecraft:melon_stem","minecraft:pumpkin_stem"), (x) -> true);
+            VALID_CROPS = COMMON_BUILDER.comment("List of valid crops for farm plots").defineList("ValidCrops", new ArrayList<>(), (x) -> true);
             SAFESPAWN_BARREL = COMMON_BUILDER.comment("Replace one chest with barrel of special loot (override using data/safespawn/loot_tables/chests/safespawn.json)").define("SafeSpawnBarrel", true);
         }
         COMMON_BUILDER.pop();
@@ -142,156 +139,107 @@ public class Config {
         COMMON_CONFIG = COMMON_BUILDER.build();
     }
 
-    private static BlockState getBlockState(StringReader resource) {
+    private static BlockState getBlockState(String resource) {
         try {
-            return BlockStateParser.parseForBlock(Registry.BLOCK, resource, false).blockState();
-        } catch (CommandSyntaxException e) {
+            return ForgeRegistries.BLOCKS.getValue(new ResourceLocation(resource)).defaultBlockState();
+        } catch (NullPointerException e) {
             SafeSpawn.LOGGER.error(e.getMessage());
             return Blocks.AIR.defaultBlockState();
         }
     }
 
     public static BlockState getRandomCrop(RandomSource random) {
-        StringReader reader = new StringReader (VALID_CROPS.get().get(random.nextInt(VALID_CROPS.get().size())));
-        return getBlockState(reader);
+        return getBlockState(VALID_CROPS.get().get(random.nextInt(VALID_CROPS.get().size())));
     }
 
     public static BlockState getPrimaryCarpet() {
-        StringReader reader = new StringReader(PRIMARY_CARPET.get());
-        return getBlockState(reader);
+        return getBlockState(PRIMARY_CARPET.get());
     }
 
     public static BlockState getSecondaryCarpet() {
-        StringReader reader = new StringReader(SECONDARY_CARPET.get());
-        return getBlockState(reader);
+        return getBlockState(SECONDARY_CARPET.get());
     }
 
     public static BlockState getDaisFocal() {
-        StringReader reader = new StringReader(DAIS_FOCAL.get());
-        return getBlockState(reader);
+        return getBlockState(DAIS_FOCAL.get());
     }
 
     public static BlockState getDaisFocal2() {
-        StringReader reader = new StringReader(DAIS_FOCAL2.get());
-        return getBlockState(reader);
+        return getBlockState(DAIS_FOCAL2.get());
+    }
+
+    public static MobEffect getMobEffect(String resource) {
+        return ForgeRegistries.MOB_EFFECTS.getValue(new ResourceLocation(resource));
     }
 
     public static MobEffectInstance getPlayerEffectPrimary() {
-        try {
-            if (!EFFECT_PLAYER_PRIMARYEFFECT.get().isEmpty()) {
-                StringReader reader = new StringReader(EFFECT_PLAYER_PRIMARYEFFECT.get());
-                MobEffect effect = new MobEffectArgument().parse(reader);
-                return new MobEffectInstance(effect, EFFECT_PLAYER_PRIMARYDURATION.get(), EFFECT_PLAYER_PRIMARYPOWER.get(), true, true, false);
-            } else {
-                return null;
-            }
-        } catch (CommandSyntaxException e) {
-            SafeSpawn.LOGGER.error(e.getMessage());
+        if (!EFFECT_PLAYER_PRIMARYEFFECT.get().isEmpty()) {
+            MobEffect effect = getMobEffect(EFFECT_PLAYER_PRIMARYEFFECT.get());
+            return new MobEffectInstance(effect, EFFECT_PLAYER_PRIMARYDURATION.get(), EFFECT_PLAYER_PRIMARYPOWER.get(), true, true, false);
+        } else {
             return null;
         }
     }
 
     public static MobEffectInstance getPlayerEffectSecondary() {
-        try {
-            if (!EFFECT_PLAYER_SECONDARYEFFECT.get().isEmpty()) {
-                StringReader reader = new StringReader(EFFECT_PLAYER_SECONDARYEFFECT.get());
-                MobEffect effect = new MobEffectArgument().parse(reader);
-                return new MobEffectInstance(effect, EFFECT_PLAYER_SECONDARYDURATION.get(), EFFECT_PLAYER_SECONDARYPOWER.get(), true, true, false);
-            } else {
-                return null;
-            }
-        } catch (CommandSyntaxException e) {
-            SafeSpawn.LOGGER.error(e.getMessage());
+        if (!EFFECT_PLAYER_SECONDARYEFFECT.get().isEmpty()) {
+            MobEffect effect = getMobEffect(EFFECT_PLAYER_SECONDARYEFFECT.get());
+            return new MobEffectInstance(effect, EFFECT_PLAYER_SECONDARYDURATION.get(), EFFECT_PLAYER_SECONDARYPOWER.get(), true, true, false);
+        } else {
             return null;
         }
     }
 
     public static MobEffectInstance getAnimalEffectPrimary() {
-        try {
-            if (!EFFECT_ANIMAL_PRIMARYEFFECT.get().isEmpty()) {
-                StringReader reader = new StringReader(EFFECT_ANIMAL_PRIMARYEFFECT.get());
-                MobEffect effect = new MobEffectArgument().parse(reader);
-                return new MobEffectInstance(effect, EFFECT_ANIMAL_PRIMARYDURATION.get(), EFFECT_ANIMAL_PRIMARYPOWER.get(), true, true, false);
-            } else {
-                return null;
-            }
-        } catch (CommandSyntaxException e) {
-            SafeSpawn.LOGGER.error(e.getMessage());
+        if (!EFFECT_ANIMAL_PRIMARYEFFECT.get().isEmpty()) {
+            MobEffect effect = getMobEffect(EFFECT_ANIMAL_PRIMARYEFFECT.get());
+            return new MobEffectInstance(effect, EFFECT_ANIMAL_PRIMARYDURATION.get(), EFFECT_ANIMAL_PRIMARYPOWER.get(), true, true, false);
+        } else {
             return null;
         }
     }
 
     public static MobEffectInstance getAnimalEffectSecondary() {
-        try {
-            if (!EFFECT_ANIMAL_SECONDARYEFFECT.get().isEmpty()) {
-                StringReader reader = new StringReader(EFFECT_ANIMAL_SECONDARYEFFECT.get());
-                MobEffect effect = new MobEffectArgument().parse(reader);
-                return new MobEffectInstance(effect, EFFECT_ANIMAL_SECONDARYDURATION.get(), EFFECT_ANIMAL_SECONDARYPOWER.get(), true, true, false);
-            } else {
-                return null;
-            }
-        } catch (CommandSyntaxException e) {
-            SafeSpawn.LOGGER.error(e.getMessage());
+        if (!EFFECT_ANIMAL_SECONDARYEFFECT.get().isEmpty()) {
+            MobEffect effect = getMobEffect(EFFECT_ANIMAL_SECONDARYEFFECT.get());
+            return new MobEffectInstance(effect, EFFECT_ANIMAL_SECONDARYDURATION.get(), EFFECT_ANIMAL_SECONDARYPOWER.get(), true, true, false);
+        } else {
             return null;
         }
     }
 
     public static MobEffectInstance getMonsterEffectPrimary() {
-        try {
-            if (!EFFECT_MONSTER_PRIMARYEFFECT.get().isEmpty()) {
-                StringReader reader = new StringReader(EFFECT_MONSTER_PRIMARYEFFECT.get());
-                MobEffect effect = new MobEffectArgument().parse(reader);
-                return new MobEffectInstance(effect, EFFECT_MONSTER_PRIMARYDURATION.get(), EFFECT_MONSTER_PRIMARYPOWER.get(), true, true, false);
-            } else {
-                return null;
-            }
-        } catch (CommandSyntaxException e) {
-            SafeSpawn.LOGGER.error(e.getMessage());
+        if (!EFFECT_MONSTER_PRIMARYEFFECT.get().isEmpty()) {
+            MobEffect effect = getMobEffect(EFFECT_MONSTER_PRIMARYEFFECT.get());
+            return new MobEffectInstance(effect, EFFECT_MONSTER_PRIMARYDURATION.get(), EFFECT_MONSTER_PRIMARYPOWER.get(), true, true, false);
+        } else {
             return null;
         }
     }
 
     public static MobEffectInstance getMonsterEffectSecondary() {
-        try {
-            if (!EFFECT_MONSTER_SECONDARYEFFECT.get().isEmpty()) {
-                StringReader reader = new StringReader(EFFECT_MONSTER_SECONDARYEFFECT.get());
-                MobEffect effect = new MobEffectArgument().parse(reader);
-                return new MobEffectInstance(effect, EFFECT_MONSTER_SECONDARYDURATION.get(), EFFECT_MONSTER_SECONDARYPOWER.get(), true, true, false);
-            } else {
-                return null;
-            }
-        } catch (CommandSyntaxException e) {
-            SafeSpawn.LOGGER.error(e.getMessage());
+        if (!EFFECT_MONSTER_SECONDARYEFFECT.get().isEmpty()) {
+            MobEffect effect = getMobEffect(EFFECT_MONSTER_SECONDARYEFFECT.get());
+            return new MobEffectInstance(effect, EFFECT_MONSTER_SECONDARYDURATION.get(), EFFECT_MONSTER_SECONDARYPOWER.get(), true, true, false);
+        } else {
             return null;
         }
     }
 
     public static MobEffectInstance getCriticalEffectPrimary() {
-        try {
-            if (!EFFECT_MONSTER_CRITICAL_PRIMARYEFFECT.get().isEmpty()) {
-                StringReader reader = new StringReader(EFFECT_MONSTER_CRITICAL_PRIMARYEFFECT.get());
-                MobEffect effect = new MobEffectArgument().parse(reader);
-                return new MobEffectInstance(effect, EFFECT_MONSTER_CRITICAL_PRIMARYDURATION.get(), EFFECT_MONSTER_CRITICAL_PRIMARYPOWER.get(), true, true, false);
-            } else {
-                return null;
-            }
-        } catch (CommandSyntaxException e) {
-            SafeSpawn.LOGGER.error(e.getMessage());
+        if (!EFFECT_MONSTER_CRITICAL_PRIMARYEFFECT.get().isEmpty()) {
+            MobEffect effect = getMobEffect(EFFECT_MONSTER_CRITICAL_PRIMARYEFFECT.get());
+            return new MobEffectInstance(effect, EFFECT_MONSTER_CRITICAL_PRIMARYDURATION.get(), EFFECT_MONSTER_CRITICAL_PRIMARYPOWER.get(), true, true, false);
+        } else {
             return null;
         }
     }
 
     public static MobEffectInstance getCriticalEffectSecondary() {
-        try {
-            if (!EFFECT_MONSTER_CRITICAL_SECONDARYEFFECT.get().isEmpty()) {
-                StringReader reader = new StringReader(EFFECT_MONSTER_CRITICAL_SECONDARYEFFECT.get());
-                MobEffect effect = new MobEffectArgument().parse(reader);
-                return new MobEffectInstance(effect, EFFECT_MONSTER_CRITICAL_SECONDARYDURATION.get(), EFFECT_MONSTER_CRITICAL_SECONDARYPOWER.get(), true, true, false);
-            } else {
-                return null;
-            }
-        } catch (CommandSyntaxException e) {
-            SafeSpawn.LOGGER.error(e.getMessage());
+        if (!EFFECT_MONSTER_CRITICAL_SECONDARYEFFECT.get().isEmpty()) {
+            MobEffect effect = getMobEffect(EFFECT_MONSTER_CRITICAL_SECONDARYEFFECT.get());
+            return new MobEffectInstance(effect, EFFECT_MONSTER_CRITICAL_SECONDARYDURATION.get(), EFFECT_MONSTER_CRITICAL_SECONDARYPOWER.get(), true, true, false);
+        } else {
             return null;
         }
     }

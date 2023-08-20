@@ -35,7 +35,7 @@ public class SpawnFortFeature extends Feature<NoneFeatureConfiguration> {
     }
         @Override
     public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {
-        SafeSpawn.LOGGER.info("Generating at " + context.origin().toString());
+        SafeSpawn.LOGGER.info("Generating at " + context.origin());
         clearArea(context.level(), context.origin());
         createFloor(context.level(), context.origin(), context.random());
         createWalls(context.level(), context.origin(), context.random());

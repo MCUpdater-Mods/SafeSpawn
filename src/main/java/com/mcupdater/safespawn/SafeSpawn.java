@@ -11,6 +11,9 @@ import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.StemBlock;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
@@ -22,15 +25,21 @@ import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 @Mod("safespawn")
 public class SafeSpawn
 {
 	public static final String MODID = "safespawn";
 	public static final Logger LOGGER = LogManager.getLogger();
-	public EventHandler eventHandler = new EventHandler();
+	public final EventHandler eventHandler = new EventHandler();
 
 	public SafeSpawn() {
 		ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.COMMON_CONFIG);
@@ -45,9 +54,18 @@ public class SafeSpawn
 
 		@SubscribeEvent
 		public void onSpawnGenerate(LevelEvent.CreateSpawnPosition levelEvent) {
-			LOGGER.info("Event fired!");
-			if (levelEvent.getLevel() instanceof ServerLevel) {
-				ServerLevel level = (ServerLevel) levelEvent.getLevel();
+			LOGGER.info("Generating spawn area");
+			if (levelEvent.getLevel() instanceof ServerLevel level) {
+				if (Config.VALID_CROPS.get().isEmpty()) {
+					SafeSpawn.LOGGER.info("No crops specified in config.  Generating list of known crops.");
+					List<String> cropKeys = new ArrayList<>();
+					@NotNull Collection<Block> crops = ForgeRegistries.BLOCKS.getValues().stream().filter(block -> (block instanceof CropBlock || block instanceof StemBlock)).toList();
+					crops.forEach(block -> {
+						SafeSpawn.LOGGER.info("Adding crop: " + ForgeRegistries.BLOCKS.getKey(block));
+						cropKeys.add(ForgeRegistries.BLOCKS.getKey(block).toString());
+					});
+					Config.VALID_CROPS.set(cropKeys);
+				}
 				ServerLevelData worldInfo = levelEvent.getSettings();
 				ServerChunkCache serverChunkCache = level.getChunkSource();
 				ChunkGenerator chunkgenerator = serverChunkCache.getGenerator();

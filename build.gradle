@@ -79,6 +79,8 @@ minecraft {
 
             // Recommended logging level for the console
             property 'forge.logging.console.level', 'debug'
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
 
             args '--mod', 'safespawn', '--all', '--output', file('src/generated/resources/'), "--existing", file('src/main/resources/')
 
@@ -93,6 +95,16 @@ minecraft {
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
+repositories {
+    maven {
+        name = "CurseForge Maven"
+        url 'https://cursemaven.com'
+        content {
+            includeGroup "curse.maven"
+        }
+    }
+}
+
 dependencies {
     // Specify the version of Minecraft to use, If this is any group other then 'net.minecraft' it is assumed
     // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
@@ -103,6 +115,8 @@ dependencies {
     //compile files("libs/mculib-1.0.jar")
     // compile "some.group:artifact:version:classifier"
     // compile "some.group:artifact:version"
+
+    //runtimeOnly fg.deobf("curse.maven:croptopia-415438:4344770")
 
     // Real examples
     // compile 'com.mod-buildcraft:buildcraft:6.0.8:dev'  // adds buildcraft to the dev env
