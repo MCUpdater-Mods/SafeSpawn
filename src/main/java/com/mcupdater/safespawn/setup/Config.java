@@ -1,6 +1,8 @@
 package com.mcupdater.safespawn.setup;
 
 import com.mcupdater.safespawn.SafeSpawn;
+import net.minecraft.commands.arguments.blocks.BlockStateParser;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffect;
@@ -76,7 +78,7 @@ public class Config {
             EXTEND_PATHS = COMMON_BUILDER.comment("Extend stairs and create docks").define("ExtendPaths", true);
             PRIMARY_CARPET = COMMON_BUILDER.comment("Center carpet").define("PrimaryCarpet","minecraft:purple_carpet");
             SECONDARY_CARPET = COMMON_BUILDER.comment("Edge carpet").define("SecondaryCarpet", "minecraft:black_carpet");
-            DAIS_FOCAL = COMMON_BUILDER.comment("Block on top of dais").define("DaisFocal", "safespawn:inert_beacon");
+            DAIS_FOCAL = COMMON_BUILDER.comment("Block on top of dais (add \"[property=value,...]\" to set properties)").define("DaisFocal", "safespawn:inert_beacon");
             DAIS_FOCAL2 = COMMON_BUILDER.comment("Block on top of dais Y+1").define("DaisFocal2", "minecraft:air");
             FARM_PLOTS = COMMON_BUILDER.comment("Generate farm plots").define("FarmPlots", true);
             VALID_CROPS = COMMON_BUILDER.comment("List of valid crops for farm plots").defineList("ValidCrops", new ArrayList<>(), (x) -> true);
@@ -141,8 +143,9 @@ public class Config {
 
     private static BlockState getBlockState(String resource) {
         try {
-            return ForgeRegistries.BLOCKS.getValue(new ResourceLocation(resource)).defaultBlockState();
-        } catch (NullPointerException e) {
+            //Registry.BLOCK is not recommended for modding, but the BlockStateParser does not use the ForgeRegistries version
+            return BlockStateParser.parseForBlock(Registry.BLOCK, resource, true).blockState();
+        } catch (Exception e) {
             SafeSpawn.LOGGER.error(e.getMessage());
             return Blocks.AIR.defaultBlockState();
         }
