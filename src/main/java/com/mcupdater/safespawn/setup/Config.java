@@ -2,21 +2,24 @@ package com.mcupdater.safespawn.setup;
 
 import com.mcupdater.safespawn.SafeSpawn;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
-import net.minecraft.core.Registry;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class Config {
-    public static final ForgeConfigSpec COMMON_CONFIG;
+    public static final ModConfigSpec COMMON_CONFIG;
 
     public static final String CATEGORY_GENERAL = "general";
     public static final String CATEGORY_EFFECTS = "effects";
@@ -24,55 +27,55 @@ public class Config {
     public static final String CATEGORY_EFFECTS_ANIMAL = "animal";
     public static final String CATEGORY_EFFECTS_MONSTER = "monster";
     public static final String CATEGORY_EFFECTS_CRITICAL = "monster_critical";
-    public static ForgeConfigSpec.BooleanValue EXTEND_PATHS;
-    private static ForgeConfigSpec.ConfigValue<String> PRIMARY_CARPET;
-    private static ForgeConfigSpec.ConfigValue<String> SECONDARY_CARPET;
-    private static ForgeConfigSpec.ConfigValue<String> DAIS_FOCAL;
-    private static ForgeConfigSpec.ConfigValue<String> DAIS_FOCAL2;
-    public static ForgeConfigSpec.BooleanValue FARM_PLOTS;
-    public static ForgeConfigSpec.ConfigValue<List<? extends String>> VALID_CROPS;
+    public static ModConfigSpec.BooleanValue EXTEND_PATHS;
+    private static ModConfigSpec.ConfigValue<String> PRIMARY_CARPET;
+    private static ModConfigSpec.ConfigValue<String> SECONDARY_CARPET;
+    private static ModConfigSpec.ConfigValue<String> DAIS_FOCAL;
+    private static ModConfigSpec.ConfigValue<String> DAIS_FOCAL2;
+    public static ModConfigSpec.BooleanValue FARM_PLOTS;
+    public static ModConfigSpec.ConfigValue<List<? extends String>> VALID_CROPS;
 
-    public static ForgeConfigSpec.BooleanValue EFFECT_PLAYER_ENABLED;
-    public static ForgeConfigSpec.IntValue EFFECT_PLAYER_RANGE;
-    public static ForgeConfigSpec.IntValue EFFECT_PLAYER_HEALTHPCT;
-    private static ForgeConfigSpec.ConfigValue<String> EFFECT_PLAYER_PRIMARYEFFECT;
-    private static ForgeConfigSpec.IntValue EFFECT_PLAYER_PRIMARYPOWER;
-    private static ForgeConfigSpec.IntValue EFFECT_PLAYER_PRIMARYDURATION;
-    private static ForgeConfigSpec.ConfigValue<String> EFFECT_PLAYER_SECONDARYEFFECT;
-    private static ForgeConfigSpec.IntValue EFFECT_PLAYER_SECONDARYPOWER;
-    private static ForgeConfigSpec.IntValue EFFECT_PLAYER_SECONDARYDURATION;
+    public static ModConfigSpec.BooleanValue EFFECT_PLAYER_ENABLED;
+    public static ModConfigSpec.IntValue EFFECT_PLAYER_RANGE;
+    public static ModConfigSpec.IntValue EFFECT_PLAYER_HEALTHPCT;
+    private static ModConfigSpec.ConfigValue<String> EFFECT_PLAYER_PRIMARYEFFECT;
+    private static ModConfigSpec.IntValue EFFECT_PLAYER_PRIMARYPOWER;
+    private static ModConfigSpec.IntValue EFFECT_PLAYER_PRIMARYDURATION;
+    private static ModConfigSpec.ConfigValue<String> EFFECT_PLAYER_SECONDARYEFFECT;
+    private static ModConfigSpec.IntValue EFFECT_PLAYER_SECONDARYPOWER;
+    private static ModConfigSpec.IntValue EFFECT_PLAYER_SECONDARYDURATION;
 
-    public static ForgeConfigSpec.BooleanValue EFFECT_ANIMAL_ENABLED;
-    public static ForgeConfigSpec.IntValue EFFECT_ANIMAL_RANGE;
-    private static ForgeConfigSpec.ConfigValue<String> EFFECT_ANIMAL_PRIMARYEFFECT;
-    private static ForgeConfigSpec.IntValue EFFECT_ANIMAL_PRIMARYPOWER;
-    private static ForgeConfigSpec.IntValue EFFECT_ANIMAL_PRIMARYDURATION;
-    private static ForgeConfigSpec.ConfigValue<String> EFFECT_ANIMAL_SECONDARYEFFECT;
-    private static ForgeConfigSpec.IntValue EFFECT_ANIMAL_SECONDARYPOWER;
-    private static ForgeConfigSpec.IntValue EFFECT_ANIMAL_SECONDARYDURATION;
+    public static ModConfigSpec.BooleanValue EFFECT_ANIMAL_ENABLED;
+    public static ModConfigSpec.IntValue EFFECT_ANIMAL_RANGE;
+    private static ModConfigSpec.ConfigValue<String> EFFECT_ANIMAL_PRIMARYEFFECT;
+    private static ModConfigSpec.IntValue EFFECT_ANIMAL_PRIMARYPOWER;
+    private static ModConfigSpec.IntValue EFFECT_ANIMAL_PRIMARYDURATION;
+    private static ModConfigSpec.ConfigValue<String> EFFECT_ANIMAL_SECONDARYEFFECT;
+    private static ModConfigSpec.IntValue EFFECT_ANIMAL_SECONDARYPOWER;
+    private static ModConfigSpec.IntValue EFFECT_ANIMAL_SECONDARYDURATION;
 
-    public static ForgeConfigSpec.BooleanValue EFFECT_MONSTER_ENABLED;
-    public static ForgeConfigSpec.IntValue EFFECT_MONSTER_RANGE;
-    private static ForgeConfigSpec.ConfigValue<String> EFFECT_MONSTER_PRIMARYEFFECT;
-    private static ForgeConfigSpec.IntValue EFFECT_MONSTER_PRIMARYPOWER;
-    private static ForgeConfigSpec.IntValue EFFECT_MONSTER_PRIMARYDURATION;
-    private static ForgeConfigSpec.ConfigValue<String> EFFECT_MONSTER_SECONDARYEFFECT;
-    private static ForgeConfigSpec.IntValue EFFECT_MONSTER_SECONDARYPOWER;
-    private static ForgeConfigSpec.IntValue EFFECT_MONSTER_SECONDARYDURATION;
+    public static ModConfigSpec.BooleanValue EFFECT_MONSTER_ENABLED;
+    public static ModConfigSpec.IntValue EFFECT_MONSTER_RANGE;
+    private static ModConfigSpec.ConfigValue<String> EFFECT_MONSTER_PRIMARYEFFECT;
+    private static ModConfigSpec.IntValue EFFECT_MONSTER_PRIMARYPOWER;
+    private static ModConfigSpec.IntValue EFFECT_MONSTER_PRIMARYDURATION;
+    private static ModConfigSpec.ConfigValue<String> EFFECT_MONSTER_SECONDARYEFFECT;
+    private static ModConfigSpec.IntValue EFFECT_MONSTER_SECONDARYPOWER;
+    private static ModConfigSpec.IntValue EFFECT_MONSTER_SECONDARYDURATION;
 
-    public static ForgeConfigSpec.BooleanValue EFFECT_MONSTER_CRITICAL_ENABLED;
-    public static ForgeConfigSpec.IntValue EFFECT_MONSTER_CRITICAL_RANGE;
-    private static ForgeConfigSpec.ConfigValue<String> EFFECT_MONSTER_CRITICAL_PRIMARYEFFECT;
-    private static ForgeConfigSpec.IntValue EFFECT_MONSTER_CRITICAL_PRIMARYPOWER;
-    private static ForgeConfigSpec.IntValue EFFECT_MONSTER_CRITICAL_PRIMARYDURATION;
-    private static ForgeConfigSpec.ConfigValue<String> EFFECT_MONSTER_CRITICAL_SECONDARYEFFECT;
-    private static ForgeConfigSpec.IntValue EFFECT_MONSTER_CRITICAL_SECONDARYPOWER;
-    private static ForgeConfigSpec.IntValue EFFECT_MONSTER_CRITICAL_SECONDARYDURATION;
+    public static ModConfigSpec.BooleanValue EFFECT_MONSTER_CRITICAL_ENABLED;
+    public static ModConfigSpec.IntValue EFFECT_MONSTER_CRITICAL_RANGE;
+    private static ModConfigSpec.ConfigValue<String> EFFECT_MONSTER_CRITICAL_PRIMARYEFFECT;
+    private static ModConfigSpec.IntValue EFFECT_MONSTER_CRITICAL_PRIMARYPOWER;
+    private static ModConfigSpec.IntValue EFFECT_MONSTER_CRITICAL_PRIMARYDURATION;
+    private static ModConfigSpec.ConfigValue<String> EFFECT_MONSTER_CRITICAL_SECONDARYEFFECT;
+    private static ModConfigSpec.IntValue EFFECT_MONSTER_CRITICAL_SECONDARYPOWER;
+    private static ModConfigSpec.IntValue EFFECT_MONSTER_CRITICAL_SECONDARYDURATION;
 
-    public static ForgeConfigSpec.BooleanValue SAFESPAWN_BARREL;
+    public static ModConfigSpec.BooleanValue SAFESPAWN_BARREL;
 
     static {
-        ForgeConfigSpec.Builder COMMON_BUILDER = new ForgeConfigSpec.Builder();
+        ModConfigSpec.Builder COMMON_BUILDER = new ModConfigSpec.Builder();
         COMMON_BUILDER.comment("General settings").push(CATEGORY_GENERAL);
         {
             EXTEND_PATHS = COMMON_BUILDER.comment("Extend stairs and create docks").define("ExtendPaths", true);
@@ -82,7 +85,7 @@ public class Config {
             DAIS_FOCAL2 = COMMON_BUILDER.comment("Block on top of dais Y+1").define("DaisFocal2", "minecraft:air");
             FARM_PLOTS = COMMON_BUILDER.comment("Generate farm plots").define("FarmPlots", true);
             VALID_CROPS = COMMON_BUILDER.comment("List of valid crops for farm plots").defineList("ValidCrops", new ArrayList<>(), (x) -> true);
-            SAFESPAWN_BARREL = COMMON_BUILDER.comment("Replace one chest with barrel of special loot (override using data/safespawn/loot_tables/chests/safespawn.json)").define("SafeSpawnBarrel", true);
+            SAFESPAWN_BARREL = COMMON_BUILDER.comment("Replace one chest with barrel of special loot (override using data/minecraft/loot_table/chests/safespawn.json)").define("SafeSpawnBarrel", true);
         }
         COMMON_BUILDER.pop();
         COMMON_BUILDER.comment("Effects").push(CATEGORY_EFFECTS);
@@ -141,43 +144,43 @@ public class Config {
         COMMON_CONFIG = COMMON_BUILDER.build();
     }
 
-    private static BlockState getBlockState(String resource) {
+    private static BlockState getBlockState(WorldGenLevel pLevel, String resource) {
         try {
             //Registry.BLOCK is not recommended for modding, but the BlockStateParser does not use the ForgeRegistries version
-            return BlockStateParser.parseForBlock(Registry.BLOCK, resource, true).blockState();
+            return BlockStateParser.parseForBlock(pLevel.holderLookup(Registries.BLOCK), resource, true).blockState();
         } catch (Exception e) {
             SafeSpawn.LOGGER.error(e.getMessage());
             return Blocks.AIR.defaultBlockState();
         }
     }
 
-    public static BlockState getRandomCrop(RandomSource random) {
-        return getBlockState(VALID_CROPS.get().get(random.nextInt(VALID_CROPS.get().size())));
+    public static BlockState getRandomCrop(RandomSource random, WorldGenLevel pLevel) {
+        return getBlockState(pLevel, VALID_CROPS.get().get(random.nextInt(VALID_CROPS.get().size())));
     }
 
-    public static BlockState getPrimaryCarpet() {
-        return getBlockState(PRIMARY_CARPET.get());
+    public static BlockState getPrimaryCarpet(WorldGenLevel pLevel) {
+        return getBlockState(pLevel, PRIMARY_CARPET.get());
     }
 
-    public static BlockState getSecondaryCarpet() {
-        return getBlockState(SECONDARY_CARPET.get());
+    public static BlockState getSecondaryCarpet(WorldGenLevel pLevel) {
+        return getBlockState(pLevel, SECONDARY_CARPET.get());
     }
 
-    public static BlockState getDaisFocal() {
-        return getBlockState(DAIS_FOCAL.get());
+    public static BlockState getDaisFocal(WorldGenLevel pLevel) {
+        return getBlockState(pLevel, DAIS_FOCAL.get());
     }
 
-    public static BlockState getDaisFocal2() {
-        return getBlockState(DAIS_FOCAL2.get());
+    public static BlockState getDaisFocal2(WorldGenLevel pLevel) {
+        return getBlockState(pLevel, DAIS_FOCAL2.get());
     }
 
-    public static MobEffect getMobEffect(String resource) {
-        return ForgeRegistries.MOB_EFFECTS.getValue(new ResourceLocation(resource));
+    public static Optional<Holder.Reference<MobEffect>> getMobEffect(String resource) {
+        return BuiltInRegistries.MOB_EFFECT.getHolder(ResourceLocation.parse(resource));
     }
 
     public static MobEffectInstance getPlayerEffectPrimary() {
         if (!EFFECT_PLAYER_PRIMARYEFFECT.get().isEmpty()) {
-            MobEffect effect = getMobEffect(EFFECT_PLAYER_PRIMARYEFFECT.get());
+            Holder.Reference<MobEffect> effect = getMobEffect(EFFECT_PLAYER_PRIMARYEFFECT.get()).get();
             return new MobEffectInstance(effect, EFFECT_PLAYER_PRIMARYDURATION.get(), EFFECT_PLAYER_PRIMARYPOWER.get(), true, true, false);
         } else {
             return null;
@@ -186,7 +189,7 @@ public class Config {
 
     public static MobEffectInstance getPlayerEffectSecondary() {
         if (!EFFECT_PLAYER_SECONDARYEFFECT.get().isEmpty()) {
-            MobEffect effect = getMobEffect(EFFECT_PLAYER_SECONDARYEFFECT.get());
+            Holder.Reference<MobEffect> effect = getMobEffect(EFFECT_PLAYER_SECONDARYEFFECT.get()).get();
             return new MobEffectInstance(effect, EFFECT_PLAYER_SECONDARYDURATION.get(), EFFECT_PLAYER_SECONDARYPOWER.get(), true, true, false);
         } else {
             return null;
@@ -195,7 +198,7 @@ public class Config {
 
     public static MobEffectInstance getAnimalEffectPrimary() {
         if (!EFFECT_ANIMAL_PRIMARYEFFECT.get().isEmpty()) {
-            MobEffect effect = getMobEffect(EFFECT_ANIMAL_PRIMARYEFFECT.get());
+            Holder.Reference<MobEffect> effect = getMobEffect(EFFECT_ANIMAL_PRIMARYEFFECT.get()).get();
             return new MobEffectInstance(effect, EFFECT_ANIMAL_PRIMARYDURATION.get(), EFFECT_ANIMAL_PRIMARYPOWER.get(), true, true, false);
         } else {
             return null;
@@ -204,7 +207,7 @@ public class Config {
 
     public static MobEffectInstance getAnimalEffectSecondary() {
         if (!EFFECT_ANIMAL_SECONDARYEFFECT.get().isEmpty()) {
-            MobEffect effect = getMobEffect(EFFECT_ANIMAL_SECONDARYEFFECT.get());
+            Holder.Reference<MobEffect> effect = getMobEffect(EFFECT_ANIMAL_SECONDARYEFFECT.get()).get();
             return new MobEffectInstance(effect, EFFECT_ANIMAL_SECONDARYDURATION.get(), EFFECT_ANIMAL_SECONDARYPOWER.get(), true, true, false);
         } else {
             return null;
@@ -213,7 +216,7 @@ public class Config {
 
     public static MobEffectInstance getMonsterEffectPrimary() {
         if (!EFFECT_MONSTER_PRIMARYEFFECT.get().isEmpty()) {
-            MobEffect effect = getMobEffect(EFFECT_MONSTER_PRIMARYEFFECT.get());
+            Holder.Reference<MobEffect> effect = getMobEffect(EFFECT_MONSTER_PRIMARYEFFECT.get()).get();
             return new MobEffectInstance(effect, EFFECT_MONSTER_PRIMARYDURATION.get(), EFFECT_MONSTER_PRIMARYPOWER.get(), true, true, false);
         } else {
             return null;
@@ -222,7 +225,7 @@ public class Config {
 
     public static MobEffectInstance getMonsterEffectSecondary() {
         if (!EFFECT_MONSTER_SECONDARYEFFECT.get().isEmpty()) {
-            MobEffect effect = getMobEffect(EFFECT_MONSTER_SECONDARYEFFECT.get());
+            Holder.Reference<MobEffect> effect = getMobEffect(EFFECT_MONSTER_SECONDARYEFFECT.get()).get();
             return new MobEffectInstance(effect, EFFECT_MONSTER_SECONDARYDURATION.get(), EFFECT_MONSTER_SECONDARYPOWER.get(), true, true, false);
         } else {
             return null;
@@ -231,7 +234,7 @@ public class Config {
 
     public static MobEffectInstance getCriticalEffectPrimary() {
         if (!EFFECT_MONSTER_CRITICAL_PRIMARYEFFECT.get().isEmpty()) {
-            MobEffect effect = getMobEffect(EFFECT_MONSTER_CRITICAL_PRIMARYEFFECT.get());
+            Holder.Reference<MobEffect> effect = getMobEffect(EFFECT_MONSTER_CRITICAL_PRIMARYEFFECT.get()).get();
             return new MobEffectInstance(effect, EFFECT_MONSTER_CRITICAL_PRIMARYDURATION.get(), EFFECT_MONSTER_CRITICAL_PRIMARYPOWER.get(), true, true, false);
         } else {
             return null;
@@ -240,7 +243,7 @@ public class Config {
 
     public static MobEffectInstance getCriticalEffectSecondary() {
         if (!EFFECT_MONSTER_CRITICAL_SECONDARYEFFECT.get().isEmpty()) {
-            MobEffect effect = getMobEffect(EFFECT_MONSTER_CRITICAL_SECONDARYEFFECT.get());
+            Holder.Reference<MobEffect> effect = getMobEffect(EFFECT_MONSTER_CRITICAL_SECONDARYEFFECT.get()).get();
             return new MobEffectInstance(effect, EFFECT_MONSTER_CRITICAL_SECONDARYDURATION.get(), EFFECT_MONSTER_CRITICAL_SECONDARYPOWER.get(), true, true, false);
         } else {
             return null;

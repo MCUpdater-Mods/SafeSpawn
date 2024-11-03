@@ -1,4 +1,4 @@
-package com.mcupdater.safespawn.tile;
+package com.mcupdater.safespawn.block;
 
 import com.mcupdater.safespawn.SafeSpawn;
 import com.mcupdater.safespawn.setup.Config;
@@ -18,9 +18,9 @@ import java.util.List;
 
 import static com.mcupdater.safespawn.setup.Registration.SPAWNHEARTBLOCK_TILE;
 
-public class TileSpawnHeart extends BlockEntity {
+public class SpawnHeartEntity extends BlockEntity {
 
-    public TileSpawnHeart(BlockPos blockPos, BlockState blockState) {
+    public SpawnHeartEntity(BlockPos blockPos, BlockState blockState) {
         super(SPAWNHEARTBLOCK_TILE.get(), blockPos, blockState);
     }
 

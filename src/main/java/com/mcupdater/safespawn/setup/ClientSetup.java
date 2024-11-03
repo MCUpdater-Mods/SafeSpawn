@@ -1,14 +1,14 @@
 package com.mcupdater.safespawn.setup;
 
-import com.mcupdater.safespawn.tile.TileRendererInertBeam;
+import com.mcupdater.safespawn.block.InertBeaconRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 
 import static com.mcupdater.safespawn.setup.Registration.BEACONBLOCK_TILE;
 
 public class ClientSetup {
 
     public static void init(final FMLClientSetupEvent event) {
-        BlockEntityRenderers.register(BEACONBLOCK_TILE.get(), TileRendererInertBeam::new);
+        BlockEntityRenderers.register(BEACONBLOCK_TILE.get(), InertBeaconRenderer::new);
     }
 }

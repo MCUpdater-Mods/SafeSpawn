@@ -5,6 +5,10 @@ import com.mcupdater.safespawn.setup.Config;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.data.loot.LootTableProvider;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
@@ -18,12 +22,15 @@ import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
+import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.data.internal.NeoForgeLootTableProvider;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 import java.util.Optional;
 
-import static com.mcupdater.safespawn.setup.Registration.SPAWNHEARTBLOCK;
+import static com.mcupdater.safespawn.setup.Registration.*;
 
 public class SpawnFortFeature extends Feature<NoneFeatureConfiguration> {
     public SpawnFortFeature(Codec<NoneFeatureConfiguration> codec) {
@@ -66,7 +73,7 @@ public class SpawnFortFeature extends Feature<NoneFeatureConfiguration> {
         worldGen.setBlock(blockPos.relative(out,13).relative(turn,8), waterSource, 3);
         for (int i = 4; i<=12; i++) {
             worldGen.setBlock(blockPos.relative(out,14).relative(turn,i), farmland, 3);
-            worldGen.setBlock(blockPos.relative(out,14).relative(turn,i).above(), Config.getRandomCrop(random), 3);
+            worldGen.setBlock(blockPos.relative(out,14).relative(turn,i).above(), Config.getRandomCrop(random, worldGen), 3);
         }
     }
 
@@ -200,7 +207,7 @@ public class SpawnFortFeature extends Feature<NoneFeatureConfiguration> {
     }
 
     private boolean isSoft(WorldGenLevel worldGen, BlockPos blockPos) {
-        return worldGen.isStateAtPosition(blockPos, (blockState) -> blockState.isAir() || blockState.is(BlockTags.REPLACEABLE_PLANTS));
+        return worldGen.isStateAtPosition(blockPos, (blockState) -> blockState.isAir() || blockState.is(BlockTags.REPLACEABLE));
     }
 
     private void clearAbove(WorldGenLevel worldGen, BlockPos blockPos) {
@@ -362,13 +369,13 @@ public class SpawnFortFeature extends Feature<NoneFeatureConfiguration> {
     private void placeChest(WorldGenLevel worldGen, BlockPos blockPos, Direction direction, RandomSource random) {
         BlockState block = Blocks.CHEST.defaultBlockState().setValue(BlockStateProperties.HORIZONTAL_FACING, direction);
         worldGen.setBlock(blockPos, block, 3);
-        RandomizableContainerBlockEntity.setLootTable(worldGen, random, blockPos, BuiltInLootTables.SPAWN_BONUS_CHEST);
+        if (worldGen.getBlockEntity(blockPos) instanceof RandomizableContainerBlockEntity chest) chest.setLootTable(BuiltInLootTables.SPAWN_BONUS_CHEST);
     }
 
     private void placeBarrel(WorldGenLevel worldGen, BlockPos blockPos, Direction direction, RandomSource random) {
         BlockState block = Blocks.BARREL.defaultBlockState().setValue(BlockStateProperties.FACING, direction);
         worldGen.setBlock(blockPos, block, 3);
-        RandomizableContainerBlockEntity.setLootTable(worldGen, random, blockPos, new ResourceLocation(SafeSpawn.MODID,"chests/safespawn"));
+        if (worldGen.getBlockEntity(blockPos) instanceof RandomizableContainerBlockEntity barrel) barrel.setLootTable(SAFESPAWN_LOOT);
     }
 
     private void placeLampPost(WorldGenLevel worldGen, BlockPos blockPos) {
@@ -467,8 +474,8 @@ public class SpawnFortFeature extends Feature<NoneFeatureConfiguration> {
     }
 
     private void placeCarpet(WorldGenLevel worldGen, BlockPos blockPos, Direction direction, int start, int end) {
-        BlockState mainCarpet = Config.getPrimaryCarpet();
-        BlockState sideCarpet = Config.getSecondaryCarpet();
+        BlockState mainCarpet = Config.getPrimaryCarpet(worldGen);
+        BlockState sideCarpet = Config.getSecondaryCarpet(worldGen);
         for (int i = start; i <= end; i++){
             worldGen.setBlock(blockPos.relative(direction, i),mainCarpet,3);
             worldGen.setBlock(blockPos.relative(direction, i).relative(direction.getClockWise(),1),sideCarpet,3);
@@ -545,8 +552,8 @@ public class SpawnFortFeature extends Feature<NoneFeatureConfiguration> {
             }
         }
         worldGen.setBlock(blockPos.above(), SPAWNHEARTBLOCK.get().defaultBlockState(), 3);
-        worldGen.setBlock(blockPos.above(3), Config.getDaisFocal(), 3);
-        worldGen.setBlock(blockPos.above(4), Config.getDaisFocal2(), 2);
+        worldGen.setBlock(blockPos.above(3), Config.getDaisFocal(worldGen), 3);
+        worldGen.setBlock(blockPos.above(4), Config.getDaisFocal2(worldGen), 2);
     }
 
     private void createWalls(WorldGenLevel worldGen, BlockPos blockPos, RandomSource random) {

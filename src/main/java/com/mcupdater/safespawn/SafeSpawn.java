@@ -6,6 +6,7 @@ import com.mcupdater.safespawn.setup.ModSetup;
 import com.mcupdater.safespawn.setup.Registration;
 import com.mcupdater.safespawn.world.SpawnFortFeature;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.PlayerRespawnLogic;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
@@ -18,14 +19,15 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.storage.ServerLevelData;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.level.LevelEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.level.LevelEvent;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -41,13 +43,13 @@ public class SafeSpawn
 	public static final Logger LOGGER = LogManager.getLogger();
 	public final EventHandler eventHandler = new EventHandler();
 
-	public SafeSpawn() {
-		ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.COMMON_CONFIG);
-		Registration.init();
+	public SafeSpawn(IEventBus modEventBus, ModContainer modContainer) {
+		modContainer.registerConfig(ModConfig.Type.COMMON, Config.COMMON_CONFIG);
+		Registration.init(modEventBus);
 
-		FMLJavaModLoadingContext.get().getModEventBus().addListener(ModSetup::init);
-		FMLJavaModLoadingContext.get().getModEventBus().addListener(ClientSetup::init);
-		MinecraftForge.EVENT_BUS.register(eventHandler);
+		modEventBus.addListener(ModSetup::init);
+		modEventBus.addListener(ClientSetup::init);
+		NeoForge.EVENT_BUS.register(eventHandler);
 	}
 
 	public class EventHandler {
@@ -59,10 +61,10 @@ public class SafeSpawn
 				if (Config.VALID_CROPS.get().isEmpty()) {
 					SafeSpawn.LOGGER.info("No crops specified in config.  Generating list of known crops.");
 					List<String> cropKeys = new ArrayList<>();
-					@NotNull Collection<Block> crops = ForgeRegistries.BLOCKS.getValues().stream().filter(block -> (block instanceof CropBlock || block instanceof StemBlock)).toList();
+					@NotNull Collection<Block> crops = BuiltInRegistries.BLOCK.stream().filter(block -> (block instanceof CropBlock || block instanceof StemBlock)).toList();
 					crops.forEach(block -> {
-						SafeSpawn.LOGGER.info("Adding crop: " + ForgeRegistries.BLOCKS.getKey(block));
-						cropKeys.add(ForgeRegistries.BLOCKS.getKey(block).toString());
+						SafeSpawn.LOGGER.info("Adding crop: " + BuiltInRegistries.BLOCK.getKey(block));
+						cropKeys.add(BuiltInRegistries.BLOCK.getKey(block).toString());
 					});
 					Config.VALID_CROPS.set(cropKeys);
 				}
@@ -102,7 +104,7 @@ public class SafeSpawn
 					zOffset += j;
 				}
 
-				new SpawnFortFeature(NoneFeatureConfiguration.CODEC).place(NoneFeatureConfiguration.INSTANCE, level, chunkgenerator, level.getRandom(), new BlockPos(worldInfo.getXSpawn(), worldInfo.getYSpawn()-1, worldInfo.getZSpawn()));
+				new SpawnFortFeature(NoneFeatureConfiguration.CODEC).place(NoneFeatureConfiguration.INSTANCE, level, chunkgenerator, level.getRandom(), worldInfo.getSpawnPos().below());
 				worldInfo.setSpawn(blockpos1.above(3),0.0F);
 			} else {
 				LOGGER.info("Not a ServerWorld");
