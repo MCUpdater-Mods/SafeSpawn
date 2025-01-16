@@ -84,7 +84,7 @@ public class Config {
             DAIS_FOCAL = COMMON_BUILDER.comment("Block on top of dais (add \"[property=value,...]\" to set properties)").define("DaisFocal", "safespawn:inert_beacon");
             DAIS_FOCAL2 = COMMON_BUILDER.comment("Block on top of dais Y+1").define("DaisFocal2", "minecraft:air");
             FARM_PLOTS = COMMON_BUILDER.comment("Generate farm plots").define("FarmPlots", true);
-            VALID_CROPS = COMMON_BUILDER.comment("List of valid crops for farm plots").defineList("ValidCrops", new ArrayList<>(), (x) -> true);
+            VALID_CROPS = COMMON_BUILDER.comment("List of valid crops for farm plots").defineList("ValidCrops", new ArrayList<>(),() -> "", (x) -> true);
             SAFESPAWN_BARREL = COMMON_BUILDER.comment("Replace one chest with barrel of special loot (override using data/minecraft/loot_table/chests/safespawn.json)").define("SafeSpawnBarrel", true);
         }
         COMMON_BUILDER.pop();
@@ -108,7 +108,7 @@ public class Config {
                 EFFECT_ANIMAL_ENABLED = COMMON_BUILDER.comment("Enabled").define("enabled",true);
                 EFFECT_ANIMAL_RANGE = COMMON_BUILDER.comment("Effect range").defineInRange("range",10,0,16);
                 EFFECT_ANIMAL_PRIMARYEFFECT = COMMON_BUILDER.comment("Primary effect to apply").define("primary_effect","minecraft:regeneration");
-                EFFECT_ANIMAL_PRIMARYPOWER = COMMON_BUILDER.comment("Strength of the primary effect").defineInRange("primary_ power", 0, 0, 10);
+                EFFECT_ANIMAL_PRIMARYPOWER = COMMON_BUILDER.comment("Strength of the primary effect").defineInRange("primary_power", 0, 0, 10);
                 EFFECT_ANIMAL_PRIMARYDURATION = COMMON_BUILDER.comment("Duration of the primary effect in ticks").defineInRange("primary_duration", 100, 0, 100000);
                 EFFECT_ANIMAL_SECONDARYEFFECT = COMMON_BUILDER.comment("Secondary effect to apply").define("secondary_effect","");
                 EFFECT_ANIMAL_SECONDARYPOWER = COMMON_BUILDER.comment("Strength of the secondary effect").defineInRange("secondary_power", 0, 0, 10);
@@ -248,5 +248,9 @@ public class Config {
         } else {
             return null;
         }
+    }
+
+    public static void save() {
+        COMMON_CONFIG.save();
     }
 }

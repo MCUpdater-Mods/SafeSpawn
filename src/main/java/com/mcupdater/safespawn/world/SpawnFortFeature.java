@@ -185,14 +185,14 @@ public class SpawnFortFeature extends Feature<NoneFeatureConfiguration> {
             clearAbove(worldGen, blockPos.above().relative(direction.getCounterClockWise()));
             worldGen.setBlock(blockPos.relative(direction.getClockWise()),blockState.setValue(BlockStateProperties.HORIZONTAL_FACING, direction.getOpposite()), 3);
             clearAbove(worldGen, blockPos.above().relative(direction.getClockWise()));
-            if (worldGen.getBlockState(blockPos.below()).isAir()) {
+            if (worldGen.getBlockState(blockPos.below()).is(Blocks.WATER)) {
+                buildDock(worldGen, blockPos.below(), direction);
+            }
+            if (isSoft(worldGen,blockPos.below())) {
                 worldGen.setBlock(blockPos.below(), blockState.setValue(BlockStateProperties.HALF, Half.TOP), 3);
                 worldGen.setBlock(blockPos.below().relative(direction.getCounterClockWise()), blockState.setValue(BlockStateProperties.HALF, Half.TOP), 3);
                 worldGen.setBlock(blockPos.below().relative(direction.getClockWise()), blockState.setValue(BlockStateProperties.HALF, Half.TOP), 3);
-            }
-            probeRoute(worldGen, blockPos.below().relative(direction), direction, recurse+1);
-            if (worldGen.getBlockState(blockPos.below()).is(Blocks.WATER)) {
-                buildDock(worldGen, blockPos.below(), direction);
+                probeRoute(worldGen, blockPos.below().relative(direction), direction, recurse+1);
             }
         } else if (!isSoft(worldGen, blockPos.above())){
             SafeSpawn.LOGGER.info("Probe: " + direction.getName() + " " + recurse + " Stairs up");

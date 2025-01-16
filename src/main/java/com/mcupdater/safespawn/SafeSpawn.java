@@ -68,6 +68,7 @@ public class SafeSpawn
 						cropKeys.add(BuiltInRegistries.BLOCK.getKey(block).toString());
 					});
 					Config.VALID_CROPS.set(cropKeys);
+					Config.save();
 				}
 				ServerLevelData worldInfo = levelEvent.getSettings();
 				ServerChunkCache serverChunkCache = level.getChunkSource();
