@@ -2,6 +2,7 @@ package com.mcupdater.safespawn.world;
 
 import com.mcupdater.safespawn.SafeSpawn;
 import com.mcupdater.safespawn.setup.Config;
+import com.mcupdater.safespawn.setup.Registration;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -28,11 +29,14 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.data.internal.NeoForgeLootTableProvider;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
+import java.util.List;
 import java.util.Optional;
 
 import static com.mcupdater.safespawn.setup.Registration.*;
 
 public class SpawnFortFeature extends Feature<NoneFeatureConfiguration> {
+    private List<ResourceKey<LootTable>> lootTables = List.of(BuiltInLootTables.SPAWN_BONUS_CHEST,BuiltInLootTables.VILLAGE_PLAINS_HOUSE,BuiltInLootTables.VILLAGE_BUTCHER,BuiltInLootTables.VILLAGE_FISHER,BuiltInLootTables.VILLAGE_MASON,BuiltInLootTables.VILLAGE_TANNERY,BuiltInLootTables.VILLAGE_TOOLSMITH,BuiltInLootTables.SIMPLE_DUNGEON);
+
     public SpawnFortFeature(Codec<NoneFeatureConfiguration> codec) {
         super(codec);
     }
@@ -369,7 +373,10 @@ public class SpawnFortFeature extends Feature<NoneFeatureConfiguration> {
     private void placeChest(WorldGenLevel worldGen, BlockPos blockPos, Direction direction, RandomSource random) {
         BlockState block = Blocks.CHEST.defaultBlockState().setValue(BlockStateProperties.HORIZONTAL_FACING, direction);
         worldGen.setBlock(blockPos, block, 3);
-        if (worldGen.getBlockEntity(blockPos) instanceof RandomizableContainerBlockEntity chest) chest.setLootTable(BuiltInLootTables.SPAWN_BONUS_CHEST);
+        if (worldGen.getBlockEntity(blockPos) instanceof RandomizableContainerBlockEntity chest) chest.setLootTable(
+                lootTables.get(random.nextInt(lootTables.size()))
+                //BuiltInLootTables.SPAWN_BONUS_CHEST
+        );
     }
 
     private void placeBarrel(WorldGenLevel worldGen, BlockPos blockPos, Direction direction, RandomSource random) {
@@ -379,11 +386,14 @@ public class SpawnFortFeature extends Feature<NoneFeatureConfiguration> {
     }
 
     private void placeLampPost(WorldGenLevel worldGen, BlockPos blockPos) {
+        /*
         BlockState post = Blocks.STONE_BRICK_WALL.defaultBlockState();
         BlockState lamp = Blocks.SEA_LANTERN.defaultBlockState();
         worldGen.setBlock(blockPos, post, 3);
         worldGen.setBlock(blockPos.above(), post, 3);
         worldGen.setBlock(blockPos.above(2), lamp, 3);
+        */
+        worldGen.setBlock(blockPos.below(), SPAWNLANTERNBLOCK.get().defaultBlockState(), 3);
     }
 
     private void placeBed(WorldGenLevel worldGen, BlockPos blockPos, RandomSource random, Direction direction) {
@@ -484,7 +494,7 @@ public class SpawnFortFeature extends Feature<NoneFeatureConfiguration> {
     }
 
     private void placeFloorlights(WorldGenLevel worldGen, BlockPos blockPos) {
-        BlockState block = Blocks.SEA_LANTERN.defaultBlockState();
+        BlockState block = SPAWNLANTERNBLOCK.get().defaultBlockState();
         worldGen.setBlock(blockPos.north(9), block, 3);
         worldGen.setBlock(blockPos.east(9), block, 3);
         worldGen.setBlock(blockPos.south(9), block, 3);

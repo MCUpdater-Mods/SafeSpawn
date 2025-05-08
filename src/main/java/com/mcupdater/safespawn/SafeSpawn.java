@@ -13,20 +13,18 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.StemBlock;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.storage.ServerLevelData;
-import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
-import net.neoforged.neoforge.client.gui.ConfigurationScreen;
-import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.level.LevelEvent;
 import org.apache.logging.log4j.LogManager;
@@ -64,8 +62,10 @@ public class SafeSpawn
 					List<String> cropKeys = new ArrayList<>();
 					@NotNull Collection<Block> crops = BuiltInRegistries.BLOCK.stream().filter(block -> (block instanceof CropBlock || block instanceof StemBlock)).toList();
 					crops.forEach(block -> {
-						SafeSpawn.LOGGER.info("Adding crop: " + BuiltInRegistries.BLOCK.getKey(block));
-						cropKeys.add(BuiltInRegistries.BLOCK.getKey(block).toString());
+						if (!BuiltInRegistries.BLOCK.getKey(block).getNamespace().startsWith("mystical") && !block.equals(Blocks.TORCHFLOWER_CROP)) {
+							SafeSpawn.LOGGER.info("Adding crop: " + BuiltInRegistries.BLOCK.getKey(block));
+							cropKeys.add(BuiltInRegistries.BLOCK.getKey(block).toString());
+						}
 					});
 					Config.VALID_CROPS.set(cropKeys);
 					Config.save();

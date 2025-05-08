@@ -1,9 +1,6 @@
 package com.mcupdater.safespawn.setup;
 
-import com.mcupdater.safespawn.block.InertBeaconBlock;
-import com.mcupdater.safespawn.block.SpawnHeartBlock;
-import com.mcupdater.safespawn.block.InertBeaconEntity;
-import com.mcupdater.safespawn.block.SpawnHeartEntity;
+import com.mcupdater.safespawn.block.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -61,12 +58,23 @@ public class Registration {
     public static final DeferredItem<Item> SPAWNHEARTBLOCK_ITEM = ITEMS.register("spawn_heart", () -> new BlockItem(SPAWNHEARTBLOCK.get(), new Item.Properties()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SpawnHeartEntity>> SPAWNHEARTBLOCK_TILE = TILES.register("spawn_heart", () -> BlockEntityType.Builder.of(SpawnHeartEntity::new, SPAWNHEARTBLOCK.get()).build(null));
 
+    public static final DeferredBlock<SpawnLanternBlock> SPAWNLANTERNBLOCK = BLOCKS.register(
+            "spawn_lantern",
+            () -> new SpawnLanternBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.COLOR_GRAY)
+                    .strength(3.0F)
+                    .lightLevel(blockState -> 15)
+                    .isValidSpawn((blockState, blockGetter, blockPos, entityType) -> false)
+    ));
+    public static final DeferredItem<Item> SPAWNLANTERNBLOCK_ITEM = ITEMS.register("spawn_lantern", () -> new BlockItem(SPAWNLANTERNBLOCK.get(), new Item.Properties()));
+
     public static final Supplier<CreativeModeTab> ITEM_GROUP = TABS.register(MODID, () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup." + MODID))
             .icon(() -> new ItemStack(SPAWNHEARTBLOCK_ITEM.get()))
             .displayItems((params, output) -> {
                 output.accept(BEACONBLOCK.get());
                 output.accept(SPAWNHEARTBLOCK.get());
+                output.accept(SPAWNLANTERNBLOCK.get());
             })
             .build()
     );
